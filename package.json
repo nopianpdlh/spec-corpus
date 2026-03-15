@@ -1,0 +1,17 @@
+{
+  "name": "spec-corpus-root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "test": "node --test packages/*/test/**/*.test.js",
+    "pack:corpus": "npm pack --workspace=packages/corpus",
+    "pack:cli": "npm pack --workspace=packages/cli",
+    "verify:release": "node scripts/verify-release.js"
+  }
+}

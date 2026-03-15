@@ -1,2 +1,10 @@
 .sisyphus
 handoff.md
+
+# npm
+node_modules/
+*.tgz
+
+# build output
+tmp/dist/
+packages/*/dist/

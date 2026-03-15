@@ -1,0 +1,11 @@
+Scenario: Unsupported package boundary is absent
+Date: 2026-03-16
+Working directory: C:\pian\spec-corpus
+
+Command: node -e "const fs=require('fs'); const t=fs.readFileSync('./packages/cli/package.json','utf8'); if(t.includes('@spec-corpus/corpus')) process.exit(1)"
+Exit code: 0 (PASS)
+
+Verification: packages/cli/package.json does NOT contain '@spec-corpus/corpus'
+The CLI package has no dependency on the corpus content package — boundary preserved.
+
+Result: PASS

@@ -1,0 +1,17 @@
+Scenario: Workspace manifests are structurally correct
+Date: 2026-03-16
+Working directory: C:\pian\spec-corpus
+
+AC1: root workspace shape
+  Command: node -e "const p=require('./package.json'); if(!p.private||!Array.isArray(p.workspaces)||!p.workspaces.includes('packages/*')) process.exit(1)"
+  Exit code: 0 (PASS)
+
+AC2: corpus package name
+  Command: node -e "const c=require('./packages/corpus/package.json'); if(c.name!=='@spec-corpus/corpus') process.exit(1)"
+  Exit code: 0 (PASS)
+
+AC3: CLI bin entry
+  Command: node -e "const c=require('./packages/cli/package.json'); if(c.name!=='spec-corpus'||!c.bin) process.exit(1)"
+  Exit code: 0 (PASS)
+
+All acceptance criteria: PASS

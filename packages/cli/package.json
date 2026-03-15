@@ -1,0 +1,28 @@
+{
+  "name": "spec-corpus",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "CLI tool for installing and managing spec-corpus in projects",
+  "bin": {
+    "spec-corpus": "./bin/spec-corpus.js"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "spec",
+    "corpus",
+    "cli",
+    "engineering",
+    "ai"
+  ],
+  "license": "MIT"
+}
