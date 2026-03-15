@@ -1,0 +1,18 @@
+N:authentication-setup
+D:Design and review backend authentication and authorization implementation, including credential fl...
+G:authentication authorization security JWT session OAuth RBAC
+U[5]:
+  **User Login System**: When adding user authentication to a new application
+  **API Security**: When adding an authentication layer to a REST or GraphQL API
+  **Permission Management**: When role-based access control is needed
+  **Authentication Migration**: When migrating an existing auth system to JWT or OAuth
+  **Service Identity**: When backend services authenticate to each other
+S[5]{n,action}:
+  1,Choose auth and trust boundaries deliberately
+  2,Define password secret and token rules
+  3,Align visible auth semantics with design-api
+  4,Define revocation rotation and authorization checks
+  5,Separate user auth from service-to-service auth
+R[2]:
+  401 vs 403 semantics
+  minimal token payloads

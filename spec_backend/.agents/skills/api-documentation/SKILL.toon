@@ -1,0 +1,18 @@
+N:api-documentation
+D:Publish backend API reference material, OpenAPI descriptions, examples, and changelog guidance wi...
+G:api-documentation OpenAPI Swagger Redoc developer-docs changelog
+U[3]:
+  **Contract Publication**: When publishing or updating backend API references
+  **Reference Review**: When checking whether docs still match the contract
+  **Consumer Handoff**: When frontend or partner teams need accurate examples
+S[4]{n,action}:
+  1,Confirm contract source from design-api
+  2,Publish accurate OpenAPI and examples
+  3,Document auth/error/async/deprecation behavior
+  4,Review changelog and consumer guidance
+R[5]:
+  design-api
+  OpenAPI
+  examples
+  errors
+  changelog

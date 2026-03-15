@@ -1,0 +1,22 @@
+N:database-schema-design
+D:Design and review backend storage models, indexing, constraints, and migration safety while keepi...
+G:database schema SQL NoSQL migration indexing persistence
+U[5]:
+  **New Project**: Database schema design for a new application
+  **Schema Refactoring**: Redesigning an existing schema for performance or scalability
+  **Relationship Definition**: Implementing 1:1, 1:N, N:M relationships between tables
+  **Migration**: Safely applying schema changes
+  **Performance Issues**: Index and schema optimization to resolve slow queries
+S[5]{n,action}:
+  1,Model internal entities and access patterns
+  2,Separate storage design from API contract design
+  3,Define indexes constraints and relationships deliberately
+  4,Plan rollout-safe migrations
+  5,Review storage-to-API mapping explicitly
+R[6]:
+  snake_case storage names
+  public API mapping
+  indexes
+  constraints
+  migrations
+  design-api boundary
