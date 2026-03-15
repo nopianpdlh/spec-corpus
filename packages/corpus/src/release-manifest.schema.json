@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spec-corpus.dev/schemas/release-manifest.schema.json",
+  "title": "Spec Corpus Release Manifest",
+  "description": "Machine-readable manifest describing the contents and provenance of a spec-corpus release package.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "packageName",
+    "packageVersion",
+    "sourceCommit",
+    "generatedAt",
+    "rootDocs",
+    "corpora",
+    "files",
+    "manifestHash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version for forward-compatibility gating."
+    },
+    "packageName": {
+      "type": "string",
+      "description": "npm package name (e.g. \"@spec-corpus/corpus\")."
+    },
+    "packageVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "Semver version of the published package."
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Full 40-character git SHA of the source commit."
+    },
+    "sourceTag": {
+      "type": "string",
+      "description": "Git tag associated with the release (optional)."
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the manifest was generated."
+    },
+    "rootDocs": {
+      "type": "array",
+      "description": "Root-level documentation files included in the release.",
+      "items": {
+        "type": "object",
+        "required": ["path", "hash", "size"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path from package root."
+          },
+          "hash": {
+            "type": "string",
+            "description": "Content hash (sha256 hex)."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "File size in bytes."
+          }
+        }
+      }
+    },
+    "corpora": {
+      "type": "array",
+      "description": "Per-corpus metadata grouping files by domain.",
+      "items": {
+        "type": "object",
+        "required": ["corpusId", "files", "provenanceRef"],
+        "additionalProperties": false,
+        "properties": {
+          "corpusId": {
+            "type": "string",
+            "description": "Corpus identifier (e.g. \"spec_frontend\")."
+          },
+          "files": {
+            "type": "array",
+            "description": "Files belonging to this corpus.",
+            "items": {
+              "type": "object",
+              "required": ["path", "hash", "size"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Relative path from package root."
+                },
+                "hash": {
+                  "type": "string",
+                  "description": "Content hash (sha256 hex)."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "File size in bytes."
+                }
+              }
+            }
+          },
+          "provenanceRef": {
+            "type": "string",
+            "description": "Relative path to the corpus skills-lock.json file."
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "Flat inventory of ALL files in the release package.",
+      "items": {
+        "type": "object",
+        "required": ["path", "hash", "size"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path from package root."
+          },
+          "hash": {
+            "type": "string",
+            "description": "Content hash (sha256 hex)."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "File size in bytes."
+          }
+        }
+      }
+    },
+    "manifestHash": {
+      "type": "string",
+      "description": "Hash of the manifest content (computed before this field is set; empty string on initial generation)."
+    }
+  }
+}

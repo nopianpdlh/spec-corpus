@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spec-corpus.dev/schemas/install-record.schema.json",
+  "title": "Spec Corpus Install Record",
+  "description": "Thin install record stored at .spec-corpus/install.json to track the active corpus snapshot in a consumer project.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "corpusPackageName",
+    "corpusPackageVersion",
+    "corpusPackageIntegrity",
+    "cliPackageName",
+    "cliPackageVersion",
+    "activeSnapshotVersion",
+    "activeSnapshotPath",
+    "installedAt",
+    "installSource"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version for forward-compatibility gating."
+    },
+    "corpusPackageName": {
+      "type": "string",
+      "description": "npm package name of the corpus package (e.g. \"@spec-corpus/corpus\")."
+    },
+    "corpusPackageVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "Semver version of the installed corpus package."
+    },
+    "corpusPackageIntegrity": {
+      "type": "string",
+      "pattern": "^sha512-",
+      "description": "npm integrity hash (sha512 format) of the installed corpus package."
+    },
+    "cliPackageName": {
+      "type": "string",
+      "description": "npm package name of the CLI tool (e.g. \"spec-corpus\")."
+    },
+    "cliPackageVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "Semver version of the CLI tool that performed the install."
+    },
+    "activeSnapshotVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "Semver version of the currently active corpus snapshot."
+    },
+    "activeSnapshotPath": {
+      "type": "string",
+      "description": "Relative path to the active snapshot directory (e.g. \".spec-corpus/snapshots/0.1.0\")."
+    },
+    "installedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the initial installation."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last update (optional)."
+    },
+    "installSource": {
+      "type": "string",
+      "enum": ["registry", "tarball"],
+      "description": "How the corpus package was obtained."
+    }
+  }
+}

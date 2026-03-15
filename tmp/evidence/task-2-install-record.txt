@@ -1,0 +1,17 @@
+▶ install-record.schema.json
+  ✔ schema version is locked at 1 (2.9047ms)
+  ✔ required fields include all expected properties (0.6411ms)
+  ✔ updatedAt is defined but not required (optional) (0.3631ms)
+  ✔ installSource enum is exactly ["registry", "tarball"] (1.4155ms)
+  ✔ schema does NOT define a files property (thin install record) (0.2449ms)
+  ✔ additionalProperties is false (strict shape) (0.2738ms)
+  ✔ uses JSON Schema draft-07 (0.2809ms)
+✔ install-record.schema.json (9.1026ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.3894
