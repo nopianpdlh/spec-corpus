@@ -1,0 +1,21 @@
+N:code-review
+D:Own the review model for correctness, maintainability, risk, and evidence. Use when deciding whether a change is acceptable and what proof or external-owner signoff is still missing.
+G:code-review code-quality risk maintainability verification
+U[5]:
+  Reviewing a pull request or patch
+  Triaging blocker/major/minor findings
+  Deciding what evidence a risky change still needs
+  Escalating semantic issues to the real domain owner
+  Producing a clear review verdict with rationale
+S[6]{n,action}:
+  1,Understand change scope and ownership
+  2,Check correctness and failure handling
+  3,Check maintainability and coupling
+  4,Assess test/security/performance/documentation evidence
+  5,Escalate semantic concerns to external owners
+  6,Return a prioritized verdict
+R[4]:
+  Do not invent new product requirements
+  Do not silently own API or policy semantics
+  Prioritize risk before style
+  Name evidence gaps concretely

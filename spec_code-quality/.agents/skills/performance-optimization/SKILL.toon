@@ -1,0 +1,19 @@
+N:performance-optimization
+D:Own measurement-driven performance work. Use when isolating bottlenecks, setting budgets, and applying optimizations without silently changing product or contract semantics.
+G:performance optimization profiling budgets regressions
+U[4]:
+  Investigating latency or throughput regressions
+  Localizing hot paths before optimization
+  Setting or checking performance budgets
+  Verifying before/after performance impact
+S[5]{n,action}:
+  1,Measure the current baseline
+  2,Localize the bottleneck
+  3,Choose the smallest useful fix
+  4,Protect semantics while optimizing
+  5,Re-measure and document tradeoffs
+R[4]:
+  Measure before changing code
+  Do not weaken correctness for speed by accident
+  Escalate semantic tradeoffs to the real owner
+  Record before/after evidence

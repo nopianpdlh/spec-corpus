@@ -1,0 +1,20 @@
+N:testing-strategies
+D:Own verification strategy and release confidence. Use when deciding which test layers matter, how to keep tests deterministic, and what evidence proves a change is safe enough to ship.
+G:testing verification quality-gates contract-testing determinism
+U[5]:
+  Defining a project test portfolio
+  Choosing evidence for a risky change
+  Fixing flaky or low-signal test suites
+  Adding contract or failure-path coverage
+  Defining release confidence gates
+S[5]{n,action}:
+  1,Identify the change risk
+  2,Choose the smallest sufficient test layers
+  3,Protect determinism and isolation
+  4,Cover critical failure paths
+  5,Define release evidence
+R[4]:
+  Do not force one framework stack on every repo
+  Do not confuse coverage percent with confidence
+  Avoid timing-based flakiness
+  Contract meaning stays with the external owner

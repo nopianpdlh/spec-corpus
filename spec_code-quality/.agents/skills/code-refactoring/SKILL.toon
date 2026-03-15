@@ -1,0 +1,20 @@
+N:code-refactoring
+D:Own behavior-preserving structural improvement. Use when reducing complexity, untangling dependencies, or removing duplication without silently changing semantics.
+G:refactoring code-quality maintainability complexity behavior-preservation
+U[5]:
+  Breaking apart overly mixed responsibilities
+  Removing duplication that causes drift
+  Creating seams before feature work
+  Cleaning up code after a bug fix
+  Simplifying structure while preserving behavior
+S[5]{n,action}:
+  1,Map current behavior and external owners
+  2,Choose the required safety net
+  3,Pick the smallest structural move
+  4,Apply changes incrementally
+  5,Verify behavior is still intact
+R[4]:
+  Default to behavior preservation
+  Do not mix refactoring with unrelated feature work
+  Do not change contracts without owner approval
+  Use testing strategy guidance for the safety net

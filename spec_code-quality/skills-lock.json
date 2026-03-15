@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "code-refactoring": {
+      "source": "spec_code-quality/.agents/skills/code-refactoring/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "code-review": {
+      "source": "spec_code-quality/.agents/skills/code-review/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "performance-optimization": {
+      "source": "spec_code-quality/.agents/skills/performance-optimization/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "72e9ab72627e4fd8ed26a582e82309a98ecdc4f6e1c99418430ac05682c9e91d"
+    },
+    "testing-strategies": {
+      "source": "spec_code-quality/.agents/skills/testing-strategies/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    }
+  }
+}
