@@ -1,0 +1,2 @@
+top-level dirs: ["corpora","root"]
+PASS: dirs are exactly [corpora, root]

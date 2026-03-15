@@ -1,0 +1,11 @@
+✓ Snapshot staged to: C:\pian\spec-corpus\tmp\corpus-stage
+  Root docs : 5
+  Corpora   : 5
+  Total files: 31
+  Manifest  : C:\pian\spec-corpus\tmp\corpus-stage\release-manifest-input.json
+
+--- Verification ---
+tmp/corpus-stage/root/README.md
+root/README.md: EXISTS
+tmp/corpus-stage/corpora/spec_backend/skills-lock.json
+corpora/spec_backend/skills-lock.json: EXISTS
