@@ -1,0 +1,13 @@
+{"event":"dry-run","command":"bootstrap","target":"./tmp/dry-run","version":"latest","installSource":"registry","plannedActions":["Resolve corpus package version <latest> from npm registry","Download corpus package tarball","Verify tarball integrity (sha512)","Create directory: ./tmp/dry-run/.spec-corpus/","Create directory: ./tmp/dry-run/.spec-corpus/snapshots/<latest>/","Extract corpus files into ./tmp/dry-run/.spec-corpus/snapshots/<latest>/","Write install record: ./tmp/dry-run/.spec-corpus/install.json"]}
+[dry-run] bootstrap — no files will be written
+  target:  ./tmp/dry-run
+  version: latest
+  source:  npm registry
+  planned actions (7):
+    - Resolve corpus package version <latest> from npm registry
+    - Download corpus package tarball
+    - Verify tarball integrity (sha512)
+    - Create directory: ./tmp/dry-run/.spec-corpus/
+    - Create directory: ./tmp/dry-run/.spec-corpus/snapshots/<latest>/
+    - Extract corpus files into ./tmp/dry-run/.spec-corpus/snapshots/<latest>/
+    - Write install record: ./tmp/dry-run/.spec-corpus/install.json

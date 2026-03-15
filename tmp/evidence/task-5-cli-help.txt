@@ -1,0 +1,26 @@
+spec-corpus — CLI tool for installing and managing the spec-corpus in your project
+
+USAGE
+  spec-corpus <command> [flags]
+
+COMMANDS
+  bootstrap   Install the spec-corpus into a target project directory
+  update      Update an existing spec-corpus installation to a newer version
+  status      Report the installation status of the spec-corpus in a target directory
+  verify      Verify the integrity of the installed spec-corpus files
+
+FLAGS (per command)
+  bootstrap  --target <path>  [--version <semver>]  [--from <tgz>]  [--dry-run]
+  update     --target <path>  [--version <semver>]  [--from <tgz>]  [--force]  [--dry-run]
+  status     --target <path>
+  verify     --target <path>
+
+GLOBAL FLAGS
+  --help, -h   Show this help message
+
+EXAMPLES
+  spec-corpus bootstrap --target ./my-project
+  spec-corpus bootstrap --target ./my-project --dry-run
+  spec-corpus update --target ./my-project --force
+  spec-corpus status --target ./my-project
+  spec-corpus verify --target ./my-project
