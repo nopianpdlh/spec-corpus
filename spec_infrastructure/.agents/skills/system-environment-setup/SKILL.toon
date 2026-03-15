@@ -1,0 +1,19 @@
+N:system-environment-setup
+D:Own host, workstation, container, and team bootstrap surfaces. Use when defining local prerequisites, dev containers, bootstrap scripts, and local infrastructure bring-up.
+G:bootstrap developer-environment devcontainer local-infra workstation
+U[4]:
+  Standardizing new contributor onboarding
+  Defining local tool and service prerequisites
+  Maintaining dev container or local compose workflows
+  Documenting repeatable local bootstrap steps
+S[5]{n,action}:
+  1,Define the local execution surface
+  2,Delegate runtime config meaning to environment-setup
+  3,Minimize bootstrap drift
+  4,Separate local convenience from deployment policy
+  5,Verify onboarding viability
+R[4]:
+  Own local/bootstrap surfaces only
+  Do not redefine runtime config schema
+  Do not become the deployment owner
+  Keep local and production concerns separate

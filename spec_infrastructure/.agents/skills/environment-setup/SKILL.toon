@@ -1,0 +1,20 @@
+N:environment-setup
+D:Own application and runtime configuration. Use when defining env/config contracts, validation, secret boundaries, and per-environment runtime behavior.
+G:environment runtime-config env-variables validation secrets
+U[5]:
+  Defining runtime env variables and config values
+  Separating required and optional runtime settings
+  Adding startup validation for config
+  Documenting secret boundaries
+  Keeping deploy/bootstrap docs aligned to the runtime contract
+S[5]{n,action}:
+  1,Define the runtime config contract
+  2,Validate config at load time
+  3,Separate storage from meaning
+  4,Keep runtime ownership narrow
+  5,Verify config changes end-to-end
+R[4]:
+  Own runtime config meaning only
+  Do not absorb workstation bootstrap concerns
+  Do not redefine deployment policy
+  Keep secret handling explicit

@@ -1,0 +1,19 @@
+N:deployment-automation
+D:Own deployment and release automation guidance. Use when defining build, promotion, rollout, rollback, and post-deploy verification paths.
+G:deployment automation rollout rollback ci-cd
+U[4]:
+  Designing a CI/CD or promotion path
+  Defining rollout and rollback behavior
+  Choosing post-deploy verification checks
+  Tightening deployment evidence and operational safety
+S[5]{n,action}:
+  1,Define the release path
+  2,Keep config ownership separate
+  3,Define rollout and rollback explicitly
+  4,Prefer observable repeatable automation
+  5,Verify post-deploy safety
+R[4]:
+  Do not absorb runtime config semantics
+  Do not confuse deployment with release approval
+  Always define rollback behavior
+  Capture operational evidence

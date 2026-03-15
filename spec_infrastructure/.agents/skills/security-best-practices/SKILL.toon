@@ -1,0 +1,19 @@
+N:security-best-practices
+D:Own infrastructure-facing hardening guidance. Use when setting defaults for secret handling, least privilege, surface reduction, patching posture, and deploy/runtime hardening.
+G:security hardening least-privilege secrets exposure
+U[4]:
+  Hardening runtime or deployment surfaces
+  Reviewing secret storage and injection boundaries
+  Tightening privilege and exposure defaults
+  Documenting patch/update expectations for infra components
+S[5]{n,action}:
+  1,Identify the exposed surface
+  2,Apply least privilege and surface reduction
+  3,Protect secret handling
+  4,Separate hardening from app semantics
+  5,Verify controls remain actionable
+R[4]:
+  Do not redefine auth semantics
+  Escalate org-wide policy questions
+  Keep secret boundaries explicit
+  Prefer safer defaults over broad exposure
