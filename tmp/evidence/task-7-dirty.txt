@@ -1,0 +1,6 @@
+{"event":"verify","command":"verify","target":"./tmp/e2e-drift","clean":false,"activeVersion":"0.1.0","conflicts":[{"file":"root/README.md","status":"modified"}]}
+[verify] ./tmp/e2e-drift
+  status: dirty
+  version: 0.1.0
+  1 conflict(s) found:
+    modified: root/README.md

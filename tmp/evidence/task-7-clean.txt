@@ -1,0 +1,5 @@
+{"event":"verify","command":"verify","target":"./tmp/e2e-drift","clean":true,"activeVersion":"0.1.0","conflicts":[]}
+[verify] ./tmp/e2e-drift
+  status: clean
+  version: 0.1.0
+  All files match the release manifest.

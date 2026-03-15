@@ -31,6 +31,7 @@ const SPEC_DIR = '.spec-corpus';
 const SNAPSHOTS_DIR = 'snapshots';
 const INSTALL_JSON = 'install.json';
 const MANIFEST_REL = 'package/dist/release-manifest.json';
+const MANIFEST_FILENAME = 'release-manifest.json';
 const ROOT_REL = 'package/dist/root';
 const CORPORA_REL = 'package/dist/corpora';
 
@@ -168,6 +169,9 @@ export function installFromTarball({ tarballPath, target, installSource }) {
     if (existsSync(stagingCorpora)) {
       cpSync(stagingCorpora, join(snapshotAbsPath, 'corpora'), { recursive: true });
     }
+
+    // 4b. Copy release-manifest.json into snapshot dir for later verification
+    cpSync(manifestPath, join(snapshotAbsPath, MANIFEST_FILENAME));
 
     // 5. Compute integrity of the tarball
     const integrity = computeIntegrity(tarballPath);
