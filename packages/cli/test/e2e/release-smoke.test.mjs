@@ -8,13 +8,14 @@
 
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 const CLI_BIN = resolve('packages/cli/bin/spec-corpus.js');
 
 let tmpBase;
@@ -74,6 +75,6 @@ describe('release smoke test', () => {
     
     const statusData = JSON.parse(jsonLine);
     assert.strictEqual(statusData.status, 'installed', 'Expected status to be "installed"');
-    assert.strictEqual(statusData.activeVersion, '0.1.0', 'Expected activeVersion to be "0.1.0"');
+    assert.strictEqual(statusData.activeVersion, corpusVersion, `Expected activeVersion to be "${corpusVersion}"`);
   });
 });

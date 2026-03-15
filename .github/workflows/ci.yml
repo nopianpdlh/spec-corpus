@@ -14,6 +14,6 @@ jobs:
           node-version: '20'
       - run: npm install
       - run: npm run pack:corpus
-      - run: node --test packages/corpus/test/release-manifest.schema.test.mjs packages/cli/test/install-record.schema.test.mjs packages/cli/test/cli-args.test.mjs packages/cli/test/status-contract.test.mjs
-      - run: node --test packages/cli/test/e2e/bootstrap-empty.test.mjs packages/cli/test/e2e/verify-clean.test.mjs packages/cli/test/e2e/dirty-state.test.mjs packages/cli/test/e2e/update-clean.test.mjs packages/cli/test/e2e/update-force.test.mjs packages/cli/test/e2e/offline-tarball.test.mjs packages/cli/test/e2e/recovery.test.mjs packages/cli/test/e2e/invalid-version.test.mjs
+      - run: node --test packages/corpus/test/release-manifest.schema.test.mjs packages/corpus/test/build-snapshot.test.mjs packages/corpus/test/pack-smoke.test.mjs packages/cli/test/install-record.schema.test.mjs packages/cli/test/cli-args.test.mjs packages/cli/test/status-contract.test.mjs
+      - run: node --test packages/cli/test/e2e/bootstrap-empty.test.mjs packages/cli/test/e2e/verify-clean.test.mjs packages/cli/test/e2e/dirty-state.test.mjs packages/cli/test/e2e/update-clean.test.mjs packages/cli/test/e2e/update-force.test.mjs packages/cli/test/e2e/offline-tarball.test.mjs packages/cli/test/e2e/recovery.test.mjs packages/cli/test/e2e/invalid-version.test.mjs packages/cli/test/e2e/release-smoke.test.mjs
       - run: npm run verify:release

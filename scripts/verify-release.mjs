@@ -8,7 +8,7 @@ console.log('--- verify:release ---');
 
 function runCommand(cmd, args, cwd = resolve('.')) {
   console.log(`> ${cmd} ${args.join(' ')}`);
-  const result = spawnSync(cmd, args, { cwd, encoding: 'utf-8', shell: true });
+  const result = spawnSync(cmd, args, { cwd, stdio: 'inherit', shell: true });
   if (result.status !== 0) {
     console.error(`Command failed with status ${result.status}`);
     console.error(result.stdout);
@@ -22,8 +22,11 @@ console.log('\n1. Packing packages...');
 runCommand('npm', ['run', 'pack:corpus']);
 runCommand('npm', ['run', 'pack:cli']);
 
-const corpusTarball = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
-const cliTarball = resolve('tmp/dist/spec-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const cliVersion = JSON.parse(readFileSync(resolve('packages/cli/package.json'), 'utf-8')).version;
+
+const corpusTarball = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
+const cliTarball = resolve(`tmp/dist/spec-corpus-${cliVersion}.tgz`);
 
 if (!existsSync(corpusTarball)) {
   console.error(`Missing corpus tarball at ${corpusTarball}`);
@@ -77,10 +80,16 @@ try {
   writeFileSync(join(snap001, 'dummy.txt'), 'fake old version');
   
   writeFileSync(join(specDir, 'install.json'), JSON.stringify({
-    schemaVersion: "1.0.0",
-    activeSnapshotVersion: "0.0.1",
+    schemaVersion: 1,
+    corpusPackageName: '@spec-corpus/corpus',
+    corpusPackageVersion: '0.0.1',
+    corpusPackageIntegrity: 'sha512-fake',
+    cliPackageName: 'spec-corpus',
+    cliPackageVersion: cliVersion,
+    activeSnapshotVersion: '0.0.1',
+    activeSnapshotPath: '.spec-corpus/snapshots/0.0.1',
     installedAt: new Date().toISOString(),
-    installSource: "tarball"
+    installSource: 'tarball'
   }, null, 2));
 
   // Run update
@@ -90,8 +99,8 @@ try {
   const updatedInstallJsonPath = join(updateTarget, '.spec-corpus', 'install.json');
   const record = JSON.parse(readFileSync(updatedInstallJsonPath, 'utf-8'));
   
-  if (record.activeSnapshotVersion !== '0.1.0') {
-    console.error(`Update failed: expected version 0.1.0, got ${record.activeSnapshotVersion}`);
+  if (record.activeSnapshotVersion !== corpusVersion) {
+    console.error(`Update failed: expected version ${corpusVersion}, got ${record.activeSnapshotVersion}`);
     process.exit(1);
   }
   

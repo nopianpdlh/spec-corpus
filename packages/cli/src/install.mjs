@@ -234,29 +234,6 @@ export function installFromTarball({ tarballPath, target, installSource }) {
 }
 
 /**
- * Clean up any orphaned .tmp-* directories under .spec-corpus/.
- * Called after successful install/update to ensure no leftovers.
- * @param {string} specDir - absolute path to .spec-corpus/ directory
- */
-function cleanupTmpDirs(specDir) {
-  if (!existsSync(specDir)) return;
-  try {
-    const entries = readdirSync(specDir);
-    for (const entry of entries) {
-      if (entry.startsWith('.tmp-')) {
-        try {
-          rmSync(join(specDir, entry), { recursive: true, force: true });
-        } catch {
-          // best-effort
-        }
-      }
-    }
-  } catch {
-    // best-effort
-  }
-}
-
-/**
  * Read CLI package version from the nearest package.json.
  * Falls back to "0.0.0" if not found.
  * @returns {string}

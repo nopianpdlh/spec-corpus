@@ -22,6 +22,7 @@ import {
   mkdirSync,
   copyFileSync,
   existsSync,
+  writeFileSync,
 } from 'node:fs';
 import { join, relative, dirname, sep, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -152,7 +153,6 @@ const manifestInput = {
 };
 
 const manifestPath = join(dirname(outAbs), 'release-manifest-input.json');
-import { writeFileSync } from 'node:fs';
 writeFileSync(manifestPath, JSON.stringify(manifestInput, null, 2) + '\n', 'utf8');
 
 // --- 4. Summary -------------------------------------------------------------

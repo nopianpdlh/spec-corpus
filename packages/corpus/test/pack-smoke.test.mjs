@@ -35,7 +35,7 @@ const distDir = join(repoRoot, 'tmp', 'dist');
 
 function getTarballs() {
   if (!existsSync(distDir)) return [];
-  return readdirSync(distDir).filter((f) => f.endsWith('.tgz'));
+  return readdirSync(distDir).filter((f) => f.startsWith('spec-corpus-corpus-') && f.endsWith('.tgz'));
 }
 
 // ---------------------------------------------------------------------------
