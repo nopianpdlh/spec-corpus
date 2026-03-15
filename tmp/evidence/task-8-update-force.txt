@@ -1,0 +1,32 @@
+▶ update — blocked by dirty state
+  ✔ exits with code 1 (2.6694ms)
+  ✔ emits event="conflict" JSON to stdout (1.1735ms)
+  ✔ reports activeVersion in conflict response (0.5061ms)
+  ✔ reports conflicts array with at least one entry (0.6292ms)
+  ✔ conflicts include the modified file (0.8092ms)
+  ✔ install.json still points to v0.0.1 (15.9014ms)
+  ✔ new snapshot was NOT created (1.3211ms)
+  ✔ stderr mentions BLOCKED (0.8642ms)
+  ✔ stderr suggests --force (4.7408ms)
+✔ update — blocked by dirty state (428.6559ms)
+▶ update — forced through dirty state
+  ✔ exits with code 0 (1.0509ms)
+  ✔ emits event="complete" JSON to stdout (0.9695ms)
+  ✔ reports correct version and previousVersion (1.0813ms)
+  ✔ includes forceWarning in response (0.9919ms)
+  ✔ includes conflicts in force response (1.012ms)
+  ✔ install.json now points to v0.1.0 (15.9447ms)
+  ✔ install.json preserves original installedAt (2.3663ms)
+  ✔ install.json has updatedAt field (5.9996ms)
+  ✔ creates new v0.1.0 snapshot (3.3007ms)
+  ✔ old v0.0.1 snapshot is preserved (1.0914ms)
+  ✔ stderr includes WARNING about force (0.5108ms)
+✔ update — forced through dirty state (491.2092ms)
+ℹ tests 20
+ℹ suites 2
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1297.8444

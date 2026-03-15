@@ -1,0 +1,47 @@
+▶ update — clean update from v0.0.1 to v0.1.0
+  ✔ exits with code 0 (3.3351ms)
+  ✔ emits event="complete" JSON to stdout (1.1832ms)
+  ✔ reports correct version and previousVersion (0.5743ms)
+  ✔ reports snapshotPath and installJsonPath (0.494ms)
+  ✔ does not include forceWarning for clean update (0.49ms)
+  ✔ install.json points to v0.1.0 (34.5445ms)
+  ✔ install.json preserves installedAt from original install (8.2987ms)
+  ✔ install.json has updatedAt field (6.39ms)
+  ✔ install.json has correct schema shape (12.3488ms)
+  ✔ creates new snapshot v0.1.0 with root/ and corpora/ (9.554ms)
+  ✔ new snapshot contains release-manifest.json (5.9403ms)
+  ✔ old v0.0.1 snapshot is preserved (4.8555ms)
+  ✔ does not leave temp staging directories (12.4733ms)
+  ✔ emits human-readable output to stderr (0.7795ms)
+✔ update — clean update from v0.0.1 to v0.1.0 (578.6205ms)
+▶ update — already active (same version)
+  ✔ exits with code 0 (0.7657ms)
+  ✔ emits event="already-active" JSON to stdout (0.6725ms)
+  ✔ reports correct version (0.3919ms)
+  ✔ stderr mentions already active (0.2878ms)
+✔ update — already active (same version) (736.0495ms)
+▶ update — error: no --from (registry not supported)
+  ✔ exits with code 1 (0.6255ms)
+  ✔ emits event="error" JSON to stdout (0.4223ms)
+  ✔ error message mentions registry not supported (0.3312ms)
+✔ update — error: no --from (registry not supported) (24.4015ms)
+▶ update — error: not installed
+  ✔ exits with code 1 (0.6103ms)
+  ✔ emits event="error" JSON to stdout (0.3887ms)
+  ✔ error message mentions not installed (0.3371ms)
+✔ update — error: not installed (6.9219ms)
+▶ update — dry-run mode
+  ✔ exits with code 0 (0.6717ms)
+  ✔ emits event="dry-run" JSON to stdout (3.204ms)
+  ✔ does NOT create new snapshot directory (1.7966ms)
+  ✔ install.json still points to v0.0.1 (5.7155ms)
+  ✔ includes planned actions in stdout JSON (3.1852ms)
+✔ update — dry-run mode (32.788ms)
+ℹ tests 29
+ℹ suites 5
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2043.5608
