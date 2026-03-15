@@ -1,2 +1,2 @@
-top-level dirs: ["corpora","root"]
-PASS: dirs are exactly [corpora, root]
+top-level entries: ["corpora","root"]
+PASS: entries are exactly ["corpora","root"]

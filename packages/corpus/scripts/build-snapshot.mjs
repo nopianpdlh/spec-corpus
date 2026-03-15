@@ -11,7 +11,7 @@
  * Output layout:
  *   <out>/root/                   — 5 root docs
  *   <out>/corpora/<corpus-id>/    — 5 corpora (without .agents/)
- *   <out>/release-manifest-input.json
+ *   <out>/../release-manifest-input.json  (one level above staging dir)
  */
 
 import { createHash } from 'node:crypto';
@@ -151,7 +151,7 @@ const manifestInput = {
   files: allFiles,
 };
 
-const manifestPath = join(outAbs, 'release-manifest-input.json');
+const manifestPath = join(dirname(outAbs), 'release-manifest-input.json');
 import { writeFileSync } from 'node:fs';
 writeFileSync(manifestPath, JSON.stringify(manifestInput, null, 2) + '\n', 'utf8');
 

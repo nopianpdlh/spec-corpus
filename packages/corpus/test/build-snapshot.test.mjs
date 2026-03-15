@@ -39,27 +39,7 @@ before(() => {
 describe('build-snapshot', () => {
   it('top-level entries are exactly ["corpora", "root"]', () => {
     const entries = readdirSync(stagingDir).sort();
-    // filter out the manifest file to check dirs
-    const dirs = entries.filter((e) => {
-      try {
-        return readdirSync(join(stagingDir, e)) !== null;
-      } catch {
-        return false;
-      }
-    });
-    // top-level should contain corpora, root (dirs) plus release-manifest-input.json
-    assert.ok(entries.includes('corpora'), 'must have corpora/');
-    assert.ok(entries.includes('root'), 'must have root/');
-    // The two dirs must be exactly corpora and root (no other dirs)
-    const topLevelDirs = entries.filter((e) => {
-      try {
-        readdirSync(join(stagingDir, e));
-        return true;
-      } catch {
-        return false;
-      }
-    });
-    assert.deepStrictEqual(topLevelDirs.sort(), ['corpora', 'root']);
+    assert.deepStrictEqual(entries, ['corpora', 'root']);
   });
 
   it('all 5 root docs are present under root/', () => {
@@ -110,13 +90,13 @@ describe('build-snapshot', () => {
     }
   });
 
-  it('release-manifest-input.json exists at staging root', () => {
-    const manifestPath = join(stagingDir, 'release-manifest-input.json');
-    assert.ok(existsSync(manifestPath), 'release-manifest-input.json must exist');
+  it('release-manifest-input.json exists one level above staging dir', () => {
+    const manifestPath = join(stagingDir, '..', 'release-manifest-input.json');
+    assert.ok(existsSync(manifestPath), 'release-manifest-input.json must exist one level above staging dir');
   });
 
   it('manifest files array has path, hash (64 hex chars), size (non-negative integer)', () => {
-    const manifestPath = join(stagingDir, 'release-manifest-input.json');
+    const manifestPath = join(stagingDir, '..', 'release-manifest-input.json');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
     assert.ok(Array.isArray(manifest.files), 'files must be an array');
     assert.ok(manifest.files.length > 0, 'files must not be empty');
