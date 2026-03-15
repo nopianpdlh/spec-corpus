@@ -23,6 +23,7 @@ import {
   writeFileSync,
   existsSync,
   cpSync,
+  renameSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -131,7 +132,9 @@ function getCliVersion() {
 export function updateFromTarball({ tarballPath, target, force, installSource }) {
   const absTarget = resolve(target);
   const specDir = join(absTarget, SPEC_DIR);
-  const tmpDir = join(specDir, `.tmp-${Date.now()}`);
+  const ts = Date.now();
+  const extractDir = join(specDir, `.tmp-extract-${ts}`);
+  const stagingDir = join(specDir, `.tmp-snap-${ts}`);
 
   // Read current install record
   const installJsonAbsPath = join(specDir, INSTALL_JSON);
@@ -145,17 +148,24 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
   const previousVersion = currentRecord.activeSnapshotVersion || 'unknown';
 
   try {
-    // 1. Extract tarball to staging area
-    extractTarball(tarballPath, tmpDir);
+    // 1. Extract tarball to extract dir
+    extractTarball(tarballPath, extractDir);
 
     // 2. Read release manifest from extracted package
-    const manifestPath = join(tmpDir, MANIFEST_REL);
+    const manifestPath = join(extractDir, MANIFEST_REL);
     if (!existsSync(manifestPath)) {
       throw new Error(
         `release-manifest.json not found in tarball at expected path: ${MANIFEST_REL}`
       );
     }
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    let manifest;
+    try {
+      manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    } catch (parseErr) {
+      throw new Error(
+        `release-manifest.json is not valid JSON: ${parseErr.message}`
+      );
+    }
     const version = manifest.packageVersion;
     if (!version) {
       throw new Error('release-manifest.json missing packageVersion field');
@@ -208,31 +218,35 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
       // This can happen when the old snapshot was set up without a manifest
     }
 
-    // 5. Copy files into new snapshot dir (skip if already exists)
+    // 5. Copy files into staging dir (skip if snapshot already exists)
     const snapshotRelPath = `${SPEC_DIR}/${SNAPSHOTS_DIR}/${version}`;
     const snapshotAbsPath = join(absTarget, snapshotRelPath);
 
     if (!existsSync(snapshotAbsPath)) {
-      mkdirSync(snapshotAbsPath, { recursive: true });
+      mkdirSync(stagingDir, { recursive: true });
 
-      const stagingRoot = join(tmpDir, ROOT_REL);
-      const stagingCorpora = join(tmpDir, CORPORA_REL);
+      const extractRoot = join(extractDir, ROOT_REL);
+      const extractCorpora = join(extractDir, CORPORA_REL);
 
-      if (existsSync(stagingRoot)) {
-        cpSync(stagingRoot, join(snapshotAbsPath, 'root'), { recursive: true });
+      if (existsSync(extractRoot)) {
+        cpSync(extractRoot, join(stagingDir, 'root'), { recursive: true });
       }
-      if (existsSync(stagingCorpora)) {
-        cpSync(stagingCorpora, join(snapshotAbsPath, 'corpora'), { recursive: true });
+      if (existsSync(extractCorpora)) {
+        cpSync(extractCorpora, join(stagingDir, 'corpora'), { recursive: true });
       }
 
-      // Copy release-manifest.json into snapshot dir for later verification
-      cpSync(manifestPath, join(snapshotAbsPath, MANIFEST_FILENAME));
+      // Copy release-manifest.json into staging dir for later verification
+      cpSync(manifestPath, join(stagingDir, MANIFEST_FILENAME));
+
+      // Atomic move: rename staging dir to final snapshot dir
+      mkdirSync(join(absTarget, SPEC_DIR, SNAPSHOTS_DIR), { recursive: true });
+      renameSync(stagingDir, snapshotAbsPath);
     }
 
     // 6. Compute integrity of the tarball
     const integrity = computeIntegrity(tarballPath);
 
-    // 7. Update install.json — preserve installedAt, add updatedAt
+    // 7. Update install.json LAST — only after atomic rename succeeds
     const now = new Date().toISOString();
     const updatedRecord = {
       schemaVersion: currentRecord.schemaVersion || 1,
@@ -262,13 +276,15 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
       forceWarning,
     };
   } finally {
-    // 8. Clean up staging area (always, even on failure)
-    try {
-      if (existsSync(tmpDir)) {
-        rmSync(tmpDir, { recursive: true, force: true });
+    // 8. Clean up BOTH temp dirs (always, even on failure)
+    for (const dir of [extractDir, stagingDir]) {
+      try {
+        if (existsSync(dir)) {
+          rmSync(dir, { recursive: true, force: true });
+        }
+      } catch {
+        // Best-effort cleanup — don't mask original error
       }
-    } catch {
-      // Best-effort cleanup — don't mask original error
     }
   }
 }

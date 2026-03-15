@@ -1,0 +1,31 @@
+▶ recovery — subprocess: renameSync failure prevents install.json
+  ✔ subprocess exits with non-zero (failure) (2.3853ms)
+  ✔ subprocess output mentions SIMULATED_FAILURE (0.9834ms)
+  ✔ install.json does NOT exist after failed install (0.9669ms)
+  ✔ snapshot directory does NOT exist after failed install (0.7802ms)
+  ✔ no orphaned .tmp-* directories after failure (2.0161ms)
+✔ recovery — subprocess: renameSync failure prevents install.json (1790.9999ms)
+▶ recovery — re-run after subprocess failure succeeds
+  ✔ re-run exits with code 0 (2.6804ms)
+  ✔ emits event="complete" (0.8903ms)
+  ✔ install.json exists and points to v0.1.0 (32.3867ms)
+  ✔ snapshot directory exists with expected content (23.7232ms)
+  ✔ no orphaned .tmp-* directories after success (22.1099ms)
+✔ recovery — re-run after subprocess failure succeeds (2478.0094ms)
+▶ recovery — simulated interrupted install (orphaned temp dirs)
+  ✔ bootstrap succeeds despite orphaned temp dirs (0.9821ms)
+  ✔ install.json exists and points to v0.1.0 (43.949ms)
+  ✔ snapshot directory exists (46.8936ms)
+✔ recovery — simulated interrupted install (orphaned temp dirs) (877.599ms)
+▶ recovery — no orphaned temp dirs after normal success
+  ✔ exits with code 0 (0.6108ms)
+  ✔ no .tmp-* directories under .spec-corpus/ (5.5092ms)
+✔ recovery — no orphaned temp dirs after normal success (786.9273ms)
+ℹ tests 15
+ℹ suites 4
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8288.2547

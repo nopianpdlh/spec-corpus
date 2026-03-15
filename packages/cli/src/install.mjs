@@ -19,6 +19,8 @@ import {
   existsSync,
   cpSync,
   statSync,
+  renameSync,
+  readdirSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -114,20 +116,29 @@ function extractTarball(tgzPath, destDir) {
 export function installFromTarball({ tarballPath, target, installSource }) {
   const absTarget = resolve(target);
   const specDir = join(absTarget, SPEC_DIR);
-  const tmpDir = join(specDir, `.tmp-${Date.now()}`);
+  const ts = Date.now();
+  const extractDir = join(specDir, `.tmp-extract-${ts}`);
+  const stagingDir = join(specDir, `.tmp-snap-${ts}`);
 
   try {
-    // 1. Extract tarball to staging area
-    extractTarball(tarballPath, tmpDir);
+    // 1. Extract tarball to extract dir
+    extractTarball(tarballPath, extractDir);
 
-    // 2. Read release manifest
-    const manifestPath = join(tmpDir, MANIFEST_REL);
+    // 2. Read release manifest from extract dir
+    const manifestPath = join(extractDir, MANIFEST_REL);
     if (!existsSync(manifestPath)) {
       throw new Error(
         `release-manifest.json not found in tarball at expected path: ${MANIFEST_REL}`
       );
     }
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    let manifest;
+    try {
+      manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    } catch (parseErr) {
+      throw new Error(
+        `release-manifest.json is not valid JSON: ${parseErr.message}`
+      );
+    }
     const version = manifest.packageVersion;
     if (!version) {
       throw new Error('release-manifest.json missing packageVersion field');
@@ -157,26 +168,33 @@ export function installFromTarball({ tarballPath, target, installSource }) {
       };
     }
 
-    // 4. Copy root/ and corpora/ into snapshot dir
-    mkdirSync(snapshotAbsPath, { recursive: true });
+    // 4. Copy files into staging dir (separate from extract dir)
+    mkdirSync(stagingDir, { recursive: true });
 
-    const stagingRoot = join(tmpDir, ROOT_REL);
-    const stagingCorpora = join(tmpDir, CORPORA_REL);
+    const extractRoot = join(extractDir, ROOT_REL);
+    const extractCorpora = join(extractDir, CORPORA_REL);
 
-    if (existsSync(stagingRoot)) {
-      cpSync(stagingRoot, join(snapshotAbsPath, 'root'), { recursive: true });
+    if (existsSync(extractRoot)) {
+      cpSync(extractRoot, join(stagingDir, 'root'), { recursive: true });
     }
-    if (existsSync(stagingCorpora)) {
-      cpSync(stagingCorpora, join(snapshotAbsPath, 'corpora'), { recursive: true });
+    if (existsSync(extractCorpora)) {
+      cpSync(extractCorpora, join(stagingDir, 'corpora'), { recursive: true });
     }
 
-    // 4b. Copy release-manifest.json into snapshot dir for later verification
-    cpSync(manifestPath, join(snapshotAbsPath, MANIFEST_FILENAME));
+    // 4b. Copy release-manifest.json into staging dir for later verification
+    cpSync(manifestPath, join(stagingDir, MANIFEST_FILENAME));
 
     // 5. Compute integrity of the tarball
     const integrity = computeIntegrity(tarballPath);
 
-    // 6. Build and write install.json
+    // 6. Atomic move: rename staging dir to final snapshot dir
+    //    Both dirs are under .spec-corpus/ so this is always same-device (no EXDEV).
+    mkdirSync(join(absTarget, SPEC_DIR, SNAPSHOTS_DIR), { recursive: true });
+    renameSync(stagingDir, snapshotAbsPath);
+
+    // 7. Write install.json LAST — only after rename succeeds.
+    //    Key invariant: if process exits before this point, install.json
+    //    does NOT reflect a successful install of this version.
     const now = new Date().toISOString();
     const installRecord = {
       schemaVersion: 1,
@@ -202,14 +220,39 @@ export function installFromTarball({ tarballPath, target, installSource }) {
       installRecord,
     };
   } finally {
-    // 7. Clean up staging area (always, even on failure)
-    try {
-      if (existsSync(tmpDir)) {
-        rmSync(tmpDir, { recursive: true, force: true });
+    // 8. Clean up BOTH temp dirs (always, even on failure)
+    for (const dir of [extractDir, stagingDir]) {
+      try {
+        if (existsSync(dir)) {
+          rmSync(dir, { recursive: true, force: true });
+        }
+      } catch {
+        // Best-effort cleanup — don't mask original error
       }
-    } catch {
-      // Best-effort cleanup — don't mask original error
     }
+  }
+}
+
+/**
+ * Clean up any orphaned .tmp-* directories under .spec-corpus/.
+ * Called after successful install/update to ensure no leftovers.
+ * @param {string} specDir - absolute path to .spec-corpus/ directory
+ */
+function cleanupTmpDirs(specDir) {
+  if (!existsSync(specDir)) return;
+  try {
+    const entries = readdirSync(specDir);
+    for (const entry of entries) {
+      if (entry.startsWith('.tmp-')) {
+        try {
+          rmSync(join(specDir, entry), { recursive: true, force: true });
+        } catch {
+          // best-effort
+        }
+      }
+    }
+  } catch {
+    // best-effort
   }
 }
 

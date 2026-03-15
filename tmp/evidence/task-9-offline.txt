@@ -1,0 +1,51 @@
+▶ invalid — tarball missing release-manifest.json
+  ✔ exits with code 1 (2.2207ms)
+  ✔ emits event="error" JSON to stdout (0.9993ms)
+  ✔ error message mentions manifest (0.6841ms)
+  ✔ does not leave .spec-corpus/install.json (0.9224ms)
+✔ invalid — tarball missing release-manifest.json (2764.4129ms)
+▶ invalid — tarball with corrupt release-manifest.json
+  ✔ exits with code 1 (1.3375ms)
+  ✔ emits event="error" JSON to stdout (0.668ms)
+  ✔ error message mentions JSON parse error (0.6499ms)
+  ✔ does not leave .spec-corpus/install.json (0.7391ms)
+✔ invalid — tarball with corrupt release-manifest.json (364.9699ms)
+▶ invalid — tarball with mismatched structure
+  ✔ exits with code 1 (1.0609ms)
+  ✔ emits event="error" JSON to stdout (0.5986ms)
+  ✔ error message mentions manifest or structure issue (0.4669ms)
+  ✔ does not leave .spec-corpus/install.json (0.8038ms)
+✔ invalid — tarball with mismatched structure (357.231ms)
+▶ offline — bootstrap from local file path
+  ✔ exits with code 0 (2.6222ms)
+  ✔ emits event="complete" JSON to stdout (10.9495ms)
+  ✔ reports correct version (0.6943ms)
+  ✔ creates snapshot directory with expected structure (39.2748ms)
+  ✔ writes install.json with installSource="tarball" (69.5031ms)
+  ✔ does not leave temp staging directories (5.0276ms)
+✔ offline — bootstrap from local file path (1125.6283ms)
+▶ offline — error: no --from (registry not supported)
+  ✔ exits with code 1 (1.5876ms)
+  ✔ error message mentions registry not supported (0.8344ms)
+✔ offline — error: no --from (registry not supported) (26.8686ms)
+▶ offline — error: --from path does not exist
+  ✔ exits with code 1 (0.7399ms)
+  ✔ emits event="error" JSON to stdout (0.8052ms)
+  ✔ error message mentions tarball not found (0.5064ms)
+✔ offline — error: --from path does not exist (10.3042ms)
+▶ offline — update from tarball after bootstrap
+  ✔ exits with code 0 (0.6666ms)
+  ✔ emits event="complete" JSON to stdout (0.4068ms)
+  ✔ reports correct version and previousVersion (0.3676ms)
+  ✔ install.json updated to v0.1.0 with tarball source (96.5587ms)
+  ✔ new snapshot v0.1.0 has correct structure (25.3964ms)
+  ✔ does not leave temp staging directories (2.9322ms)
+✔ offline — update from tarball after bootstrap (971.772ms)
+ℹ tests 29
+ℹ suites 7
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4798.3613
