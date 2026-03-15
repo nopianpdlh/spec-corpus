@@ -1,0 +1,5 @@
+docs/distribution/bootstrap.md exists
+docs/distribution/migration.md exists
+docs/distribution/release.md exists
+.github/workflows/ci.yml exists
+.github/workflows/release.yml exists

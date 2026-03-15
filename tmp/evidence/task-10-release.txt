@@ -1,0 +1,24 @@
+
+> verify:release
+> node scripts/verify-release.mjs
+
+--- verify:release ---
+
+1. Packing packages...
+> npm run pack:corpus
+> npm run pack:cli
+
+2. Extracting CLI tarball to test executable...
+> npm install --no-save C:\pian\spec-corpus\tmp\dist\spec-corpus-0.1.0.tgz
+
+3. Bootstrap smoke test...
+> node C:\Users\ACER\AppData\Local\Temp\verify-release-1773611535301\cli-extract\node_modules\spec-corpus\bin\spec-corpus.js bootstrap --target C:\Users\ACER\AppData\Local\Temp\verify-release-1773611535301\bootstrap-test --from C:\pian\spec-corpus\tmp\dist\spec-corpus-corpus-0.1.0.tgz
+Bootstrap smoke test passed.
+
+4. Update smoke test...
+> node C:\Users\ACER\AppData\Local\Temp\verify-release-1773611535301\cli-extract\node_modules\spec-corpus\bin\spec-corpus.js update --target C:\Users\ACER\AppData\Local\Temp\verify-release-1773611535301\update-test --from C:\pian\spec-corpus\tmp\dist\spec-corpus-corpus-0.1.0.tgz
+Update smoke test passed.
+
+--- verify:release SUCCESS ---
+(node:10668) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
