@@ -1,0 +1,17 @@
+✔ exactly 1 .tgz file exists in tmp/dist/ (1.9492ms)
+✔ tarball name starts with spec-corpus-corpus- (0.4901ms)
+✔ tarball name ends with .tgz (0.2979ms)
+✔ tarball size > 0 bytes (0.6893ms)
+✔ tarball contains package/dist/release-manifest.json (1.6138ms)
+✔ tarball contains package/dist/root/README.md (0.6984ms)
+✔ tarball contains package/dist/corpora/spec_backend/skills-lock.json (0.8276ms)
+✔ tarball does NOT contain any .agents/ paths (no internal tooling) (0.5219ms)
+✔ release-manifest.json inside tarball has schemaVersion: 1 (16.8803ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 272.5747

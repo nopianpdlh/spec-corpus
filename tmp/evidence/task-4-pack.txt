@@ -1,0 +1,81 @@
+=== npm run pack:corpus output ===
+
+> pack:corpus
+> npm pack --workspace=packages/corpus --pack-destination ./tmp/dist
+
+
+> @spec-corpus/corpus@0.1.0 prepack
+> npm run build
+
+
+> @spec-corpus/corpus@0.1.0 build
+> node scripts/build-snapshot.mjs --out tmp/stage && node scripts/generate-release-manifest.mjs --stage tmp/stage --out dist
+
+✓ Snapshot staged to: C:\pian\spec-corpus\packages\corpus\tmp\stage
+  Root docs : 5
+  Corpora   : 5
+  Total files: 31
+  Manifest  : C:\pian\spec-corpus\packages\corpus\tmp\release-manifest-input.json
+✓ Release manifest written: C:\pian\spec-corpus\packages\corpus\dist\release-manifest.json
+  packageVersion : 0.1.0
+  sourceCommit   : c31f52d3962294507ab02a0277a21b48b49ca933
+  sourceTag      : (none)
+  rootDocs       : 5
+  corpora        : 5
+  files          : 31
+  manifestHash   : 6f7d6cde831fb0c0ebbc1e970390755b2fdf564f57f65aeee9165975b7affbf3
+  generatedAt    : 2026-03-15T20:33:26.778Z
+✓ Staged content copied to: C:\pian\spec-corpus\packages\corpus\dist
+npm notice
+npm notice package: @spec-corpus/corpus@0.1.0
+npm notice Tarball Contents
+npm notice 3.9kB dist/corpora/spec_backend/BACKEND-SPEC-INDEX.md
+npm notice 5.2kB dist/corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-design.md
+npm notice 6.0kB dist/corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-plan.md
+npm notice 5.1kB dist/corpora/spec_backend/DOMAIN-OWNERSHIP.md
+npm notice 4.1kB dist/corpora/spec_backend/NEW-PROJECT-CHECKLIST.md
+npm notice 910B dist/corpora/spec_backend/skills-lock.json
+npm notice 3.3kB dist/corpora/spec_code-quality/CODE-QUALITY-SPEC-INDEX.md
+npm notice 4.6kB dist/corpora/spec_code-quality/DOMAIN-OWNERSHIP.md
+npm notice 2.7kB dist/corpora/spec_code-quality/NEW-PROJECT-CHECKLIST.md
+npm notice 951B dist/corpora/spec_code-quality/skills-lock.json
+npm notice 2.6kB dist/corpora/spec_documentation/DOCS-SPEC-INDEX.md
+npm notice 3.6kB dist/corpora/spec_documentation/DOMAIN-OWNERSHIP.md
+npm notice 2.3kB dist/corpora/spec_documentation/NEW-PROJECT-CHECKLIST.md
+npm notice 802B dist/corpora/spec_documentation/skills-lock.json
+npm notice 5.4kB dist/corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-design.md
+npm notice 6.4kB dist/corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-plan.md
+npm notice 5.4kB dist/corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-design.md
+npm notice 5.3kB dist/corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-plan.md
+npm notice 6.2kB dist/corpora/spec_frontend/DOMAIN-OWNERSHIP.md
+npm notice 5.0kB dist/corpora/spec_frontend/FRONTEND-SPEC-INDEX.md
+npm notice 4.6kB dist/corpora/spec_frontend/NEW-PROJECT-CHECKLIST.md
+npm notice 2.4kB dist/corpora/spec_frontend/skills-lock.json
+npm notice 4.0kB dist/corpora/spec_infrastructure/DOMAIN-OWNERSHIP.md
+npm notice 2.7kB dist/corpora/spec_infrastructure/INFRA-SPEC-INDEX.md
+npm notice 2.6kB dist/corpora/spec_infrastructure/NEW-PROJECT-CHECKLIST.md
+npm notice 799B dist/corpora/spec_infrastructure/skills-lock.json
+npm notice 12.7kB dist/release-manifest.json
+npm notice 2.8kB dist/root/ARCHITECTURE.md
+npm notice 2.5kB dist/root/CENTRAL-CHECKLIST.md
+npm notice 2.6kB dist/root/CONTRIBUTING.md
+npm notice 4.0kB dist/root/OPERATING-MODEL.md
+npm notice 2.6kB dist/root/README.md
+npm notice 605B package.json
+npm notice Tarball Details
+npm notice name: @spec-corpus/corpus
+npm notice version: 0.1.0
+npm notice filename: spec-corpus-corpus-0.1.0.tgz
+npm notice package size: 33.5 kB
+npm notice unpacked size: 124.8 kB
+npm notice shasum: cdd4611edac57d3e1cec109d1ddf949efca803c4
+npm notice integrity: sha512-pDFKkPN/q57yL[...]idGBuXQ+E8Sfg==
+npm notice total files: 33
+npm notice
+spec-corpus-corpus-0.1.0.tgz
+
+=== Tarball verification ===
+-rw-r--r-- 1 ACER 197121 33487 Mar 16 03:33 tmp/dist/spec-corpus-corpus-0.1.0.tgz
+
+=== Tarball count check ===
+PASS: Exactly 1 tarball: spec-corpus-corpus-0.1.0.tgz

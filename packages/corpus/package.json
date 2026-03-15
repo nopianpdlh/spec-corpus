@@ -10,6 +10,10 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "scripts": {
+    "build": "node scripts/build-snapshot.mjs --out tmp/stage && node scripts/generate-release-manifest.mjs --stage tmp/stage --out dist",
+    "prepack": "npm run build"
+  },
   "engines": {
     "node": ">=20"
   },
