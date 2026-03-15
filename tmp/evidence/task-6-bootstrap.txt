@@ -1,0 +1,6 @@
+{"event":"complete","command":"bootstrap","target":"./tmp/e2e-empty","version":"0.1.0","snapshotPath":".spec-corpus/snapshots/0.1.0","installJsonPath":".spec-corpus/install.json","installRecord":{"schemaVersion":1,"corpusPackageName":"@spec-corpus/corpus","corpusPackageVersion":"0.1.0","corpusPackageIntegrity":"sha512-TUmduWhe7Xif/LOIhHruRJqGcMKVQqosrIe5w27pQ8YG9hlEEJTae6MNl6djTJ7mSMid4HtL5vVghjd1D8hL1Q==","cliPackageName":"spec-corpus","cliPackageVersion":"0.1.0","activeSnapshotVersion":"0.1.0","activeSnapshotPath":".spec-corpus/snapshots/0.1.0","installedAt":"2026-03-15T20:54:01.135Z","installSource":"tarball"}}
+[bootstrap] installed corpus v0.1.0
+  target:   ./tmp/e2e-empty
+  snapshot: .spec-corpus/snapshots/0.1.0
+  record:   .spec-corpus/install.json
+EXIT_CODE=0

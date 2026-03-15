@@ -1,0 +1,4 @@
+{"event":"already-installed","command":"bootstrap","target":"./tmp/e2e-empty","version":"0.1.0","snapshotPath":".spec-corpus/snapshots/0.1.0","installJsonPath":".spec-corpus/install.json"}
+[bootstrap] already installed — version 0.1.0
+  snapshot: .spec-corpus/snapshots/0.1.0
+EXIT_CODE=0

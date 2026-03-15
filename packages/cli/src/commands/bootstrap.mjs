@@ -1,16 +1,21 @@
 /**
- * bootstrap.mjs — bootstrap command handler (stub)
+ * bootstrap.mjs — bootstrap command handler
  *
- * Full install logic is implemented in Task 6.
- * This stub satisfies the v1 command contract and dry-run output shape.
+ * Installs a corpus tarball into .spec-corpus/snapshots/<version>/
+ * and writes .spec-corpus/install.json.
  *
- * Output contract (dry-run):
- *   stdout: JSON line with { event: "dry-run", command: "bootstrap", plannedActions: [...] }
- *   stderr: human-readable summary
+ * Output contract:
+ *   stdout: JSON line with BootstrapResult
+ *   stderr: human-readable summary with [bootstrap] prefix
  *
- * Output contract (live — future Task 6):
- *   stdout: JSON line with { event: "complete", command: "bootstrap", ... }
+ * Dry-run output:
+ *   stdout: JSON line with { event: "dry-run", command: "bootstrap", ... }
+ *   stderr: human-readable planned actions
  */
+
+import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { installFromTarball } from '../install.mjs';
 
 /**
  * @typedef {Object} BootstrapOptions
@@ -28,6 +33,7 @@
 export async function runBootstrap(options) {
   const { target, version, from, dryRun } = options;
 
+  // --- Dry-run mode: plan only, no mutations ---
   if (dryRun) {
     const plannedActions = buildPlannedActions({ target, version, from });
 
@@ -40,10 +46,8 @@ export async function runBootstrap(options) {
       plannedActions,
     };
 
-    // Machine-readable: JSON to stdout
     process.stdout.write(JSON.stringify(result) + '\n');
 
-    // Human-readable summary to stderr
     process.stderr.write('[dry-run] bootstrap — no files will be written\n');
     process.stderr.write(`  target:  ${target}\n`);
     process.stderr.write(`  version: ${version ?? 'latest'}\n`);
@@ -56,16 +60,85 @@ export async function runBootstrap(options) {
     return { exitCode: 0 };
   }
 
-  // Live install — not yet implemented (Task 6)
-  const result = {
-    event: 'not-implemented',
-    command: 'bootstrap',
-    message: 'Full install logic will be added in Task 6.',
-  };
-  process.stdout.write(JSON.stringify(result) + '\n');
-  process.stderr.write('[bootstrap] Full install not yet implemented. Coming in Task 6.\n');
+  // --- Live install ---
+  try {
+    // Resolve the tarball path
+    const tarballPath = resolveTarball({ from, version });
 
-  return { exitCode: 0 };
+    const installResult = installFromTarball({
+      tarballPath,
+      target,
+      installSource: from ? 'tarball' : 'registry',
+    });
+
+    if (installResult.alreadyInstalled) {
+      const result = {
+        event: 'already-installed',
+        command: 'bootstrap',
+        target,
+        version: installResult.version,
+        snapshotPath: installResult.snapshotPath,
+        installJsonPath: installResult.installJsonPath,
+      };
+      process.stdout.write(JSON.stringify(result) + '\n');
+      process.stderr.write(`[bootstrap] already installed — version ${installResult.version}\n`);
+      process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+      return { exitCode: 0 };
+    }
+
+    // Fresh install
+    const result = {
+      event: 'complete',
+      command: 'bootstrap',
+      target,
+      version: installResult.version,
+      snapshotPath: installResult.snapshotPath,
+      installJsonPath: installResult.installJsonPath,
+      installRecord: installResult.installRecord,
+    };
+    process.stdout.write(JSON.stringify(result) + '\n');
+
+    process.stderr.write(`[bootstrap] installed corpus v${installResult.version}\n`);
+    process.stderr.write(`  target:   ${target}\n`);
+    process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+    process.stderr.write(`  record:   ${installResult.installJsonPath}\n`);
+
+    return { exitCode: 0 };
+  } catch (err) {
+    const result = {
+      event: 'error',
+      command: 'bootstrap',
+      target,
+      error: err.message,
+    };
+    process.stdout.write(JSON.stringify(result) + '\n');
+    process.stderr.write(`[bootstrap] ERROR: ${err.message}\n`);
+    return { exitCode: 1 };
+  }
+}
+
+/**
+ * Resolve the tarball path from options.
+ * If --from is provided, use that local file.
+ * Otherwise, registry resolution is not yet implemented (v1 requires --from).
+ *
+ * @param {{ from: string|null, version: string|null }} opts
+ * @returns {string} absolute path to tarball
+ */
+function resolveTarball({ from, version }) {
+  if (from) {
+    const absPath = resolve(from);
+    if (!existsSync(absPath)) {
+      throw new Error(`Tarball not found: ${absPath}`);
+    }
+    return absPath;
+  }
+
+  // Registry resolution: not implemented in v1
+  // Future: npm pack @spec-corpus/corpus@<version> to a temp dir
+  throw new Error(
+    'Registry install is not yet supported. Use --from <path.tgz> to provide a local tarball.'
+  );
 }
 
 /**
