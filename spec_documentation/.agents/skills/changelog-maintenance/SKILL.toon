@@ -1,0 +1,19 @@
+N:changelog-maintenance
+D:Own release communication and change history. Use when documenting what changed, who is affected, and what migration or deprecation guidance must accompany a release.
+G:changelog release-notes migration deprecation documentation
+U[4]:
+  Preparing a release note or changelog entry
+  Communicating user-visible or operator-visible changes
+  Documenting deprecations and removals
+  Linking readers to the canonical migration path
+S[5]{n,action}:
+  1,Gather grounded change input from source owners
+  2,Classify changes for readers
+  3,Write impact-focused release communication
+  4,Make deprecations and migrations actionable
+  5,Keep the historical record trustworthy
+R[4]:
+  Do not redefine system behavior in the changelog
+  Avoid vague summaries like miscellaneous fixes
+  Include migration guidance for breaking changes
+  Prefer reader impact over commit-log wording

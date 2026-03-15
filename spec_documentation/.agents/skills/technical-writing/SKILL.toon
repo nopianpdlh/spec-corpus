@@ -1,0 +1,20 @@
+N:technical-writing
+D:Own documentation authoring quality and structure. Use when deciding how a document should be written, organized, reviewed, and maintained without redefining the system truth owned elsewhere.
+G:technical-writing documentation structure maintenance audience
+U[5]:
+  Writing a spec, runbook, onboarding guide, or reference doc
+  Choosing the right structure for a document
+  Reviewing whether docs are clear and maintainable
+  Tightening terminology and navigation across a doc set
+  Linking to canonical semantic owners instead of copying truth
+S[5]{n,action}:
+  1,Identify audience and document intent
+  2,Choose the right document shape
+  3,Write with ownership boundaries
+  4,Optimize for retrieval and maintenance
+  5,Review for reader usefulness
+R[4]:
+  Do not invent product or API truth
+  Distinguish examples from requirements
+  Prefer canonical links over duplicated semantics
+  Name maintenance expectations clearly
