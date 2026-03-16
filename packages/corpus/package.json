@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Spec corpus content package — curated engineering specs for AI-assisted development",
   "files": [
+    "README.md",
     "dist/"
   ],
   "scripts": {
