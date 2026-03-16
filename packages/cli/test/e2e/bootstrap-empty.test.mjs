@@ -1,7 +1,7 @@
 /**
  * bootstrap-empty.test.mjs — e2e tests for the bootstrap command
  *
- * Tests the full bootstrap flow: tarball extraction, snapshot creation,
+ * Tests the full bootstrap flow: tarball extraction into flat canonical root,
  * install.json writing, and idempotent re-run behavior.
  *
  * Requires a corpus tarball at tmp/dist/spec-corpus-corpus-0.1.0.tgz
@@ -159,35 +159,35 @@ describe('bootstrap — fresh install into empty directory', () => {
     assert.strictEqual(record.corpusPackageVersion, corpusVersion);
     assert.ok(record.corpusPackageIntegrity.startsWith('sha512-'), 'integrity must start with sha512-');
     assert.strictEqual(record.cliPackageName, 'spec-corpus');
+    assert.strictEqual(record.layoutVersion, 2);
     assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
-    assert.strictEqual(record.activeSnapshotPath, `.spec-corpus/snapshots/${corpusVersion}`);
+    assert.strictEqual(record.activeSnapshotPath, undefined);
     assert.ok(record.installedAt, 'installedAt must be present');
     assert.strictEqual(record.installSource, 'tarball');
   });
 
-  it('creates snapshot directory with root/ and corpora/', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
-    await access(snapshotDir);
-
-    const rootDir = join(snapshotDir, 'root');
-    const corporaDir = join(snapshotDir, 'corpora');
-    await access(rootDir);
-    await access(corporaDir);
-  });
-
-  it('snapshot root/ contains expected files', async () => {
-    const rootDir = join(target, '.spec-corpus', 'snapshots', corpusVersion, 'root');
+  it('flat canonical root contains expected files', async () => {
+    const rootDir = join(target, '.spec-corpus');
     const entries = await readdir(rootDir);
     assert.ok(entries.includes('README.md'), 'root/ must contain README.md');
     assert.ok(entries.includes('ARCHITECTURE.md'), 'root/ must contain ARCHITECTURE.md');
   });
 
-  it('snapshot corpora/ contains expected corpus directories', async () => {
-    const corporaDir = join(target, '.spec-corpus', 'snapshots', corpusVersion, 'corpora');
+  it('flat canonical root contains expected corpus directories', async () => {
+    const corporaDir = join(target, '.spec-corpus');
     const entries = await readdir(corporaDir);
     assert.ok(entries.includes('spec_frontend'), 'corpora/ must contain spec_frontend');
     assert.ok(entries.includes('spec_backend'), 'corpora/ must contain spec_backend');
     assert.ok(entries.includes('spec_code-quality'), 'corpora/ must contain spec_code-quality');
+  });
+
+  it('writes release-manifest.json in flat canonical root', async () => {
+    await access(join(target, '.spec-corpus', 'release-manifest.json'));
+  });
+
+  it('does not create snapshots directory for fresh install', () => {
+    const snapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    assert.ok(!existsSync(snapshotsDir), 'snapshots/ must NOT exist for layout v2 installs');
   });
 
   it('materializes browsable root docs under .spec-corpus/', async () => {

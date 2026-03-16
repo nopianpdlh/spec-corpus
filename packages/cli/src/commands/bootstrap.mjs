@@ -1,7 +1,7 @@
 /**
  * bootstrap.mjs — bootstrap command handler
  *
- * Installs a corpus tarball into .spec-corpus/snapshots/<version>/
+ * Installs a corpus tarball into flat canonical .spec-corpus/
  * and writes .spec-corpus/install.json.
  *
  * Output contract:
@@ -85,7 +85,7 @@ export async function runBootstrapLike(commandName, options) {
         };
         process.stdout.write(JSON.stringify(result) + '\n');
         process.stderr.write(`[${commandName}] already installed — version ${installResult.version}\n`);
-        process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+        process.stderr.write(`  layout: flat (.spec-corpus root canonical)\n`);
         return { exitCode: 0 };
       }
 
@@ -102,7 +102,7 @@ export async function runBootstrapLike(commandName, options) {
 
       process.stderr.write(`[${commandName}] installed corpus v${installResult.version}\n`);
       process.stderr.write(`  target:   ${target}\n`);
-      process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+      process.stderr.write(`  layout:   flat (.spec-corpus root canonical)\n`);
       process.stderr.write(`  record:   ${installResult.installJsonPath}\n`);
 
       return { exitCode: 0 };
@@ -135,8 +135,9 @@ function buildPlannedActions({ target, version, from }) {
     `Download corpus package tarball`,
     `Verify tarball integrity (sha512)`,
     `Create directory: ${target}/.spec-corpus/`,
-    `Create directory: ${target}/.spec-corpus/snapshots/${ver}/`,
-    `Extract corpus files into ${target}/.spec-corpus/snapshots/${ver}/`,
+    `Create directory: ${target}/.spec-corpus/`,
+    `Extract corpus files into ${target}/.spec-corpus/ (flat canonical layout)`,
+    `Write manifest: ${target}/.spec-corpus/release-manifest.json`,
     `Write install record: ${target}/.spec-corpus/install.json`,
   ];
 }

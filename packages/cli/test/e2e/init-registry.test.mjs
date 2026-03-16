@@ -110,7 +110,9 @@ describe('init — registry-first install', () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     assert.ok(existsSync(installJsonPath));
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
+    assert.strictEqual(record.layoutVersion, 2);
     assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
+    assert.strictEqual(record.activeSnapshotPath, undefined);
     assert.strictEqual(record.installSource, 'registry');
   });
 
@@ -125,6 +127,15 @@ describe('init — registry-first install', () => {
       'SKILL.md'
     );
     await access(skillPath);
+  });
+
+  it('does not create snapshots/ on fresh init', () => {
+    const snapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    assert.ok(!existsSync(snapshotsDir), 'snapshots/ must not exist on fresh init layout v2');
+  });
+
+  it('writes release-manifest.json at flat canonical root', async () => {
+    await access(join(target, '.spec-corpus', 'release-manifest.json'));
   });
 });
 
