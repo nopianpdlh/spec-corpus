@@ -1,6 +1,6 @@
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const CORPUS_PACKAGE_NAME = '@spec-corpus/corpus';
@@ -34,6 +34,36 @@ function parsePackResult(stdout, spec) {
   return parsed[0];
 }
 
+export function resolveNpmPackInvocation({
+  platform = process.platform,
+  execPath = process.execPath,
+  npmExecPath = process.env.npm_execpath ?? null,
+  pathExists = existsSync,
+} = {}) {
+  if (npmExecPath) {
+    return {
+      command: execPath,
+      baseArgs: [npmExecPath],
+      shell: false,
+    };
+  }
+
+  const bundledNpmCli = join(dirname(execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+  if (pathExists(bundledNpmCli)) {
+    return {
+      command: execPath,
+      baseArgs: [bundledNpmCli],
+      shell: false,
+    };
+  }
+
+  return {
+    command: 'npm',
+    baseArgs: [],
+    shell: true,
+  };
+}
+
 /**
  * Resolve the corpus tarball from either a local file or the npm registry.
  * Uses npm pack for registry-first resolution so npm handles tag/range lookup.
@@ -65,12 +95,14 @@ export function resolveCorpusTarball({ from, version }) {
 
   const spec = `${CORPUS_PACKAGE_NAME}@${version ?? 'latest'}`;
   const tempDir = mkdtempSync(join(tmpdir(), 'spec-corpus-registry-pack-'));
+  const npmInvocation = resolveNpmPackInvocation();
 
   try {
-    const result = spawnSync('npm', ['pack', spec, '--json'], {
+    const result = spawnSync(npmInvocation.command, [...npmInvocation.baseArgs, 'pack', spec, '--json'], {
       cwd: tempDir,
       encoding: 'utf-8',
       timeout: 120_000,
+      shell: npmInvocation.shell,
     });
 
     if (result.status !== 0) {
