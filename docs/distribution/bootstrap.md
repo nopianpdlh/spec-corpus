@@ -38,7 +38,10 @@ The init/bootstrap command initializes the following layout in your target direc
 
 *   `.spec-corpus/`: The main directory containing all corpus data.
 *   `.spec-corpus/install.json`: A manifest file recording the installed version, provenance, and configuration.
-*   `.spec-corpus/snapshots/`: A directory containing the actual corpus snapshots.
+*   `.spec-corpus/release-manifest.json`: Integrity manifest used by `status`/`verify`/`update` checks.
+*   `.spec-corpus/spec_*`: Domain corpus directories (backend/frontend/docs/code-quality/infrastructure).
+
+Fresh installs now use **flat layout v2** and do **not** create `.spec-corpus/snapshots/`.
 
 ## Idempotency guarantee
 

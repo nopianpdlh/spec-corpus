@@ -17,11 +17,26 @@ If you currently clone or copy this repository manually into your projects, this
     npx spec-corpus init --target "./"
     ```
 
-3.  **Update Gitignore**: Add the snapshots directory to your `.gitignore` to prevent committing the large corpus files, while keeping the manifest (`install.json`) to track the version. Add this line:
+3.  **Update Gitignore**: Add `.spec-corpus/` to `.gitignore` unless your team intentionally versions installed corpus artifacts. Default recommendation:
 
     ```gitignore
-    .spec-corpus/snapshots/
+    .spec-corpus/
     ```
+
+## Layout migration behavior (v1 -> v2)
+
+If your project still has legacy layout (`.spec-corpus/snapshots/*`), running:
+
+```bash
+npx spec-corpus update --target "./"
+```
+
+will automatically migrate to flat layout v2:
+
+- managed payload becomes canonical at `.spec-corpus/*`
+- `.spec-corpus/release-manifest.json` becomes active integrity manifest
+- `install.json` is updated to `layoutVersion: 2`
+- legacy `snapshots/` directory is removed after successful migration/update
 
 ## Overriding Local Changes
 
