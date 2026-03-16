@@ -3,7 +3,7 @@
  *
  * Reads the install record from <target>/.spec-corpus/install.json and reports
  * the installation status. When installed, also performs a quick dirty check
- * using the snapshot verifier. Does NOT mutate the filesystem.
+ * using the managed payload verifier. Does NOT mutate the filesystem.
  *
  * Output contract:
  *   stdout: JSON line with StatusResult
@@ -133,8 +133,13 @@ function emitStatus(result) {
   process.stderr.write(`  status: ${status}\n`);
 
   if (status === 'installed' && installRecord) {
+    const layoutVersion = installRecord.layoutVersion ?? 1;
+    const layoutPath = layoutVersion >= 2
+      ? '.spec-corpus/ (flat canonical root)'
+      : installRecord.activeSnapshotPath ?? '.spec-corpus/snapshots/<version>';
     process.stderr.write(`  version:  ${installRecord.activeSnapshotVersion ?? 'unknown'}\n`);
-    process.stderr.write(`  snapshot: ${installRecord.activeSnapshotPath ?? 'unknown'}\n`);
+    process.stderr.write(`  layout:   v${layoutVersion}\n`);
+    process.stderr.write(`  path:     ${layoutPath}\n`);
     process.stderr.write(`  installed at: ${installRecord.installedAt ?? 'unknown'}\n`);
     if (installRecord.updatedAt) {
       process.stderr.write(`  updated at:   ${installRecord.updatedAt}\n`);

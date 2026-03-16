@@ -50,6 +50,43 @@ async function captureStdout(fn) {
 }
 
 /**
+ * Capture stderr writes from an async function.
+ * @param {() => Promise<void>} fn
+ * @returns {Promise<string>} captured stderr text
+ */
+async function captureStderr(fn) {
+  const chunks = [];
+  const originalWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = (chunk, ...args) => {
+    chunks.push(typeof chunk === 'string' ? chunk : chunk.toString());
+    return true;
+  };
+  try {
+    await fn();
+  } finally {
+    process.stderr.write = originalWrite;
+  }
+  return chunks.join('');
+}
+
+/**
+ * Capture stdout + stderr from an async function.
+ * @template T
+ * @param {() => Promise<T>} fn
+ * @returns {Promise<{result: T, stdout: string, stderr: string}>}
+ */
+async function captureOutput(fn) {
+  let result;
+  let stderr = '';
+  const stdout = await captureStdout(async () => {
+    stderr = await captureStderr(async () => {
+      result = await fn();
+    });
+  });
+  return { result, stdout, stderr };
+}
+
+/**
  * Parse first JSON line from captured output.
  * @param {string} output
  * @returns {Object}
@@ -116,13 +153,13 @@ describe('status contract — not-installed', () => {
 describe('status contract — installed', () => {
   const validRecord = {
     schemaVersion: 1,
+    layoutVersion: 2,
     corpusPackageName: '@spec-corpus/corpus',
     corpusPackageVersion: '0.1.0',
     corpusPackageIntegrity: 'sha512-abc123',
     cliPackageName: 'spec-corpus',
     cliPackageVersion: cliVersion,
     activeSnapshotVersion: '0.1.0',
-    activeSnapshotPath: '.spec-corpus/snapshots/0.1.0',
     installedAt: '2026-03-16T00:00:00.000Z',
     installSource: 'registry',
   };
@@ -182,6 +219,38 @@ describe('status contract — installed', () => {
 
     const result = await runStatus({ target });
     assert.strictEqual(result.exitCode, 0);
+  });
+});
+
+describe('status contract — legacy v1 installed path display', () => {
+  it('stderr shows legacy snapshot path for layout v1 records', async () => {
+    const target = join(tmpBase, 'legacy-installed');
+    await mkdir(join(target, '.spec-corpus'), { recursive: true });
+    await writeFile(
+      join(target, '.spec-corpus', 'install.json'),
+      JSON.stringify(
+        {
+          schemaVersion: 1,
+          corpusPackageName: '@spec-corpus/corpus',
+          corpusPackageVersion: '0.0.1',
+          corpusPackageIntegrity: 'sha512-legacy',
+          cliPackageName: 'spec-corpus',
+          cliPackageVersion: '0.1.4',
+          activeSnapshotVersion: '0.0.1',
+          activeSnapshotPath: '.spec-corpus/snapshots/0.0.1',
+          installedAt: '2026-03-16T00:00:00.000Z',
+          installSource: 'tarball',
+        },
+        null,
+        2
+      ) + '\n',
+      'utf-8'
+    );
+
+    const captured = await captureOutput(() => runStatus({ target }));
+    assert.equal(captured.result.exitCode, 0);
+    assert.ok(captured.stderr.includes('layout:   v1'));
+    assert.ok(captured.stderr.includes('path:     .spec-corpus/snapshots/0.0.1'));
   });
 });
 
