@@ -15,9 +15,36 @@ jobs:
       - run: npm install
       - run: npm run pack:corpus
       - run: npm run verify:release
-      - run: npm publish packages/corpus --access public
+      - id: detect_versions
+        run: |
+          CORPUS_VERSION=$(node -p "require('./packages/corpus/package.json').version")
+          CLI_VERSION=$(node -p "require('./packages/cli/package.json').version")
+
+          CORPUS_PUBLISHED=$(npm view @spec-corpus/corpus version 2>/dev/null || true)
+          CLI_PUBLISHED=$(npm view spec-corpus version 2>/dev/null || true)
+
+          if [ "$CORPUS_VERSION" = "$CORPUS_PUBLISHED" ]; then
+            echo "publish_corpus=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish_corpus=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$CLI_VERSION" = "$CLI_PUBLISHED" ]; then
+            echo "publish_cli=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish_cli=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "corpus_version=$CORPUS_VERSION" >> "$GITHUB_OUTPUT"
+          echo "corpus_published=$CORPUS_PUBLISHED" >> "$GITHUB_OUTPUT"
+          echo "cli_version=$CLI_VERSION" >> "$GITHUB_OUTPUT"
+          echo "cli_published=$CLI_PUBLISHED" >> "$GITHUB_OUTPUT"
+
+      - run: npm publish ./packages/corpus --access public
+        if: steps.detect_versions.outputs.publish_corpus == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm publish packages/cli --access public
+      - run: npm publish ./packages/cli --access public
+        if: steps.detect_versions.outputs.publish_cli == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
