@@ -65,6 +65,13 @@ The release workflow uses npm `dist-tags`:
 
 For coordinated two-package releases, prefer the CI pipeline after all verifications pass. For a CLI-only emergency or patch release, a manual `npm publish` of `packages/cli` is acceptable after running the same verification steps locally.
 
+## npm README publishing note
+
+npm package pages update README when a new package version is published.
+If you update package README files, pair that change with version bump + publish.
+
+See: `docs/distribution/npm-readme.md`
+
 ## First public install expectation
 
 After the packages are published, the intended public install flow is:
