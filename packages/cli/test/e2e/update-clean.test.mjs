@@ -4,7 +4,7 @@
  * Tests:
  *   - Update from v0.0.1 to v0.1.0 (clean state)
  *   - Idempotent update (already at v0.1.0)
- *   - Old snapshot preserved after update
+ *   - Migrates legacy snapshot layout to flat layout v2
  *   - install.json fields updated correctly (updatedAt added, installedAt preserved)
  *   - Error: no --from (registry not supported)
  *   - Error: not installed (no install.json)
@@ -182,10 +182,10 @@ after(async () => {
 });
 
 // ---------------------------------------------------------------------------
-// Clean update from v0.0.1 → v0.1.0
+// Clean update from v0.0.1 legacy snapshot layout → latest flat layout v2
 // ---------------------------------------------------------------------------
 
-describe('update — clean update from v0.0.1 to v0.1.0', () => {
+describe('update — clean update from v0.0.1 legacy to latest flat layout v2', () => {
   let target;
   let captured;
 
@@ -217,13 +217,13 @@ describe('update — clean update from v0.0.1 to v0.1.0', () => {
 
   it('reports correct version and previousVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
     assert.strictEqual(json.previousVersion, '0.0.1');
   });
 
   it('reports snapshotPath and installJsonPath', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.snapshotPath, '.spec-corpus/snapshots/0.1.0');
+    assert.strictEqual(json.snapshotPath, null);
     assert.strictEqual(json.installJsonPath, '.spec-corpus/install.json');
   });
 
@@ -232,11 +232,12 @@ describe('update — clean update from v0.0.1 to v0.1.0', () => {
     assert.strictEqual(json.forceWarning, undefined);
   });
 
-  it('install.json points to v0.1.0', async () => {
+  it('install.json points to latest and marks layoutVersion=2', async () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
-    assert.strictEqual(record.activeSnapshotVersion, '0.1.0');
-    assert.strictEqual(record.activeSnapshotPath, '.spec-corpus/snapshots/0.1.0');
+    assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
+    assert.strictEqual(record.layoutVersion, 2);
+    assert.strictEqual(record.activeSnapshotPath, undefined);
   });
 
   it('install.json preserves installedAt from original install', async () => {
@@ -258,34 +259,28 @@ describe('update — clean update from v0.0.1 to v0.1.0', () => {
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
     assert.strictEqual(record.schemaVersion, 1);
     assert.strictEqual(record.corpusPackageName, '@spec-corpus/corpus');
-    assert.strictEqual(record.corpusPackageVersion, '0.1.0');
+    assert.strictEqual(record.corpusPackageVersion, corpusVersion);
     assert.ok(record.corpusPackageIntegrity.startsWith('sha512-'));
     assert.strictEqual(record.installSource, 'tarball');
   });
 
-  it('creates new snapshot v0.1.0 with root/ and corpora/', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
-    await access(snapshotDir);
-    await access(join(snapshotDir, 'root'));
-    await access(join(snapshotDir, 'corpora'));
+  it('creates flat canonical root payload and manifest', async () => {
+    const specDir = join(target, '.spec-corpus');
+    await access(join(specDir, 'README.md'));
+    await access(join(specDir, 'spec_backend'));
+    await access(join(specDir, 'release-manifest.json'));
   });
 
-  it('new snapshot contains release-manifest.json', async () => {
-    const manifestPath = join(
-      target, '.spec-corpus', 'snapshots', '0.1.0', 'release-manifest.json'
-    );
+  it('new flat root manifest reports latest package version', async () => {
+    const manifestPath = join(target, '.spec-corpus', 'release-manifest.json');
     await access(manifestPath);
     const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'));
-    assert.strictEqual(manifest.packageVersion, '0.1.0');
+    assert.strictEqual(manifest.packageVersion, corpusVersion);
   });
 
-  it('old v0.0.1 snapshot is preserved', async () => {
-    const oldSnapshotDir = join(target, '.spec-corpus', 'snapshots', '0.0.1');
-    assert.ok(existsSync(oldSnapshotDir), 'Old snapshot 0.0.1 must still exist');
-    assert.ok(
-      existsSync(join(oldSnapshotDir, 'root', 'README.md')),
-      'Old snapshot files must still exist'
-    );
+  it('old snapshots directory is removed after migration', () => {
+    const oldSnapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    assert.ok(!existsSync(oldSnapshotsDir), 'Legacy snapshots/ must be removed after migration');
   });
 
   it('does not leave temp staging directories', async () => {
@@ -297,7 +292,7 @@ describe('update — clean update from v0.0.1 to v0.1.0', () => {
 
   it('emits human-readable output to stderr', () => {
     assert.ok(captured.stderr.includes('[update]'), 'stderr must contain [update] prefix');
-    assert.ok(captured.stderr.includes('0.1.0'), 'stderr must mention new version');
+    assert.ok(captured.stderr.includes(corpusVersion), 'stderr must mention new version');
     assert.ok(captured.stderr.includes('0.0.1'), 'stderr must mention previous version');
   });
 });
@@ -326,7 +321,7 @@ describe('update — already active (same version)', () => {
       })
     );
 
-    // Second update: 0.1.0 → 0.1.0 (same tarball)
+    // Second update: latest → latest (same tarball)
     captured = await captureOutput(() =>
       runUpdate({
         target,
@@ -350,7 +345,7 @@ describe('update — already active (same version)', () => {
 
   it('reports correct version', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
   });
 
   it('stderr mentions already active', () => {
@@ -479,15 +474,16 @@ describe('update — dry-run mode', () => {
     assert.strictEqual(json.command, 'update');
   });
 
-  it('does NOT create new snapshot directory', () => {
-    const newSnapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
-    assert.ok(!existsSync(newSnapshotDir), 'v0.1.0 snapshot must NOT exist after dry-run');
+  it('does NOT create flat manifest during dry-run', () => {
+    const manifestPath = join(target, '.spec-corpus', 'release-manifest.json');
+    assert.ok(!existsSync(manifestPath), 'release-manifest must NOT exist after dry-run');
   });
 
-  it('install.json still points to v0.0.1', async () => {
+  it('install.json still points to v0.0.1 legacy record', async () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
     assert.strictEqual(record.activeSnapshotVersion, '0.0.1');
+    assert.strictEqual(record.layoutVersion, undefined);
   });
 
   it('includes planned actions in stdout JSON', () => {

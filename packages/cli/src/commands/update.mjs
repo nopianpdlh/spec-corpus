@@ -1,8 +1,8 @@
 /**
  * update.mjs — update command handler
  *
- * Resolves a new corpus tarball, stages a new snapshot, verifies current
- * clean state, and only then switches the active snapshot in install.json.
+ * Resolves a new corpus tarball, updates flat canonical .spec-corpus payload,
+ * verifies current clean state, and updates install.json.
  * --force bypasses dirty-state blocking.
  *
  * Output contract:
@@ -130,7 +130,7 @@ export async function runUpdate(options) {
 
       process.stderr.write(`[update] updated corpus v${updateResult.previousVersion} → v${updateResult.version}\n`);
       process.stderr.write(`  target:   ${target}\n`);
-      process.stderr.write(`  snapshot: ${updateResult.snapshotPath}\n`);
+      process.stderr.write(`  layout:   flat (.spec-corpus root canonical)\n`);
       process.stderr.write(`  record:   ${updateResult.installJsonPath}\n`);
       if (updateResult.forceWarning) {
         process.stderr.write(`  WARNING: ${updateResult.forceWarning}\n`);
@@ -170,12 +170,12 @@ function buildPlannedActions({ target, version, from, force }) {
   if (force) {
     actions.push(`(--force) Skip dirty-state check`);
   } else {
-    actions.push(`Verify active snapshot is clean (block if dirty)`);
+    actions.push(`Verify managed corpus is clean against release-manifest.json (block if dirty)`);
   }
   actions.push(
-    `Create directory: ${target}/.spec-corpus/snapshots/${ver}/`,
-    `Extract corpus files into ${target}/.spec-corpus/snapshots/${ver}/`,
-    `Update install record: ${target}/.spec-corpus/install.json (set activeSnapshotVersion, updatedAt)`
+    `Replace managed payload in ${target}/.spec-corpus/ with new version (flat canonical layout)`,
+    `Write manifest: ${target}/.spec-corpus/release-manifest.json`,
+    `Update install record: ${target}/.spec-corpus/install.json (set activeSnapshotVersion, updatedAt, layoutVersion=2)`
   );
   return actions;
 }
