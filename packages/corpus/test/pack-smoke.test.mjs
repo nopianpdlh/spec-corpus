@@ -222,14 +222,10 @@ test('tarball contains package/dist/corpora/spec_backend/skills-lock.json', () =
   );
 });
 
-test('tarball does NOT contain any .agents/ paths (no internal tooling)', () => {
-  const forbidden = tarEntries.filter(
-    (e) => e.includes('/.agents/') || e.startsWith('.agents/'),
-  );
-  assert.equal(
-    forbidden.length,
-    0,
-    `Tarball contains forbidden .agents/ paths:\n${forbidden.join('\n')}`,
+test('tarball contains backend skill payload under .agents/skills', () => {
+  assert.ok(
+    tarEntries.includes('package/dist/corpora/spec_backend/.agents/skills/backend-testing/SKILL.md'),
+    'Expected backend-testing skill to be included in packed corpus payload',
   );
 });
 

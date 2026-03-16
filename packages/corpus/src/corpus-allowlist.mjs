@@ -32,8 +32,8 @@ export function isExcluded(relPath) {
   // Normalise to forward slashes
   const p = relPath.replace(/\\/g, '/');
 
-  // .agents/ subdirectories — internal tooling, must NOT ship
-  if (p.startsWith('.agents/') || p === '.agents') return true;
+  // Keep .agents/ in payload: domain docs and skills-lock.json reference
+  // .agents/skills/* as part of the public corpus contract.
 
   // node_modules
   if (p.startsWith('node_modules/') || p === 'node_modules') return true;

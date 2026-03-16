@@ -24,6 +24,7 @@ import {
   existsSync,
   cpSync,
   renameSync,
+  readdirSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { verifySnapshot } from './verify-snapshot.mjs';
@@ -40,6 +41,46 @@ const MANIFEST_REL = 'package/dist/release-manifest.json';
 const MANIFEST_FILENAME = 'release-manifest.json';
 const ROOT_REL = 'package/dist/root';
 const CORPORA_REL = 'package/dist/corpora';
+
+/**
+ * Materialize active snapshot contents into .spec-corpus root so the installed
+ * layout is directly browsable (README/ARCHITECTURE + spec_* folders), while
+ * snapshots remain canonical under .spec-corpus/snapshots/<version>.
+ *
+ * @param {string} specDir
+ * @param {string} snapshotAbsPath
+ */
+function materializeActiveSnapshotView(specDir, snapshotAbsPath) {
+  const keepTopLevel = new Set([SNAPSHOTS_DIR, INSTALL_JSON]);
+
+  if (!existsSync(specDir)) {
+    return;
+  }
+
+  for (const entry of readdirSync(specDir, { withFileTypes: true })) {
+    if (keepTopLevel.has(entry.name)) continue;
+    if (entry.name.startsWith('.tmp-')) continue;
+    rmSync(join(specDir, entry.name), { recursive: true, force: true });
+  }
+
+  const snapshotRoot = join(snapshotAbsPath, 'root');
+  if (existsSync(snapshotRoot)) {
+    for (const entry of readdirSync(snapshotRoot, { withFileTypes: true })) {
+      cpSync(join(snapshotRoot, entry.name), join(specDir, entry.name), {
+        recursive: entry.isDirectory(),
+      });
+    }
+  }
+
+  const snapshotCorpora = join(snapshotAbsPath, 'corpora');
+  if (existsSync(snapshotCorpora)) {
+    for (const entry of readdirSync(snapshotCorpora, { withFileTypes: true })) {
+      cpSync(join(snapshotCorpora, entry.name), join(specDir, entry.name), {
+        recursive: entry.isDirectory(),
+      });
+    }
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -142,6 +183,11 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
 
     // 3. If new version == active version → already-active
     if (version === previousVersion) {
+      const activeSnapshotAbsPath = resolve(absTarget, currentRecord.activeSnapshotPath || '');
+      if (existsSync(activeSnapshotAbsPath)) {
+        materializeActiveSnapshotView(specDir, activeSnapshotAbsPath);
+      }
+
       return {
         alreadyActive: true,
         blocked: false,
@@ -233,6 +279,9 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
 
     writeFileSync(installJsonAbsPath, JSON.stringify(updatedRecord, null, 2) + '\n', 'utf-8');
 
+    // 8. Materialize active snapshot to .spec-corpus root.
+    materializeActiveSnapshotView(specDir, snapshotAbsPath);
+
     return {
       alreadyActive: false,
       blocked: false,
@@ -245,7 +294,7 @@ export function updateFromTarball({ tarballPath, target, force, installSource })
       forceWarning,
     };
   } finally {
-    // 8. Clean up BOTH temp dirs (always, even on failure)
+    // 9. Clean up BOTH temp dirs (always, even on failure)
     for (const dir of [extractDir, stagingDir]) {
       try {
         if (existsSync(dir)) {

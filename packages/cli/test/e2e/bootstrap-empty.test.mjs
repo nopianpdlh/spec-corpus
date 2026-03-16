@@ -190,6 +190,26 @@ describe('bootstrap — fresh install into empty directory', () => {
     assert.ok(entries.includes('spec_code-quality'), 'corpora/ must contain spec_code-quality');
   });
 
+  it('materializes browsable root docs under .spec-corpus/', async () => {
+    const specDir = join(target, '.spec-corpus');
+    const entries = await readdir(specDir);
+    assert.ok(entries.includes('README.md'), '.spec-corpus must contain README.md');
+    assert.ok(entries.includes('ARCHITECTURE.md'), '.spec-corpus must contain ARCHITECTURE.md');
+  });
+
+  it('materializes spec_backend with .agents/skills backend-testing at .spec-corpus root', async () => {
+    const skillPath = join(
+      target,
+      '.spec-corpus',
+      'spec_backend',
+      '.agents',
+      'skills',
+      'backend-testing',
+      'SKILL.md'
+    );
+    await access(skillPath);
+  });
+
   it('does not leave temp staging directories', async () => {
     const specDir = join(target, '.spec-corpus');
     const entries = await readdir(specDir);

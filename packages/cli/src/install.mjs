@@ -37,6 +37,49 @@ const MANIFEST_FILENAME = 'release-manifest.json';
 const ROOT_REL = 'package/dist/root';
 const CORPORA_REL = 'package/dist/corpora';
 
+/**
+ * Materialize active snapshot contents into .spec-corpus root so the installed
+ * layout is directly browsable (README/ARCHITECTURE + spec_* folders), while
+ * snapshots remain canonical under .spec-corpus/snapshots/<version>.
+ *
+ * @param {string} specDir
+ * @param {string} snapshotAbsPath
+ */
+function materializeActiveSnapshotView(specDir, snapshotAbsPath) {
+  const keepTopLevel = new Set([SNAPSHOTS_DIR, INSTALL_JSON]);
+
+  if (!existsSync(specDir)) {
+    return;
+  }
+
+  // Remove previous materialized entries.
+  for (const entry of readdirSync(specDir, { withFileTypes: true })) {
+    if (keepTopLevel.has(entry.name)) continue;
+    if (entry.name.startsWith('.tmp-')) continue;
+    rmSync(join(specDir, entry.name), { recursive: true, force: true });
+  }
+
+  // Copy snapshot/root/* -> .spec-corpus/*
+  const snapshotRoot = join(snapshotAbsPath, 'root');
+  if (existsSync(snapshotRoot)) {
+    for (const entry of readdirSync(snapshotRoot, { withFileTypes: true })) {
+      cpSync(join(snapshotRoot, entry.name), join(specDir, entry.name), {
+        recursive: entry.isDirectory(),
+      });
+    }
+  }
+
+  // Copy snapshot/corpora/spec_* -> .spec-corpus/spec_*
+  const snapshotCorpora = join(snapshotAbsPath, 'corpora');
+  if (existsSync(snapshotCorpora)) {
+    for (const entry of readdirSync(snapshotCorpora, { withFileTypes: true })) {
+      cpSync(join(snapshotCorpora, entry.name), join(specDir, entry.name), {
+        recursive: entry.isDirectory(),
+      });
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -118,6 +161,9 @@ export function installFromTarball({ tarballPath, target, installSource }) {
     const snapshotAbsPath = join(absTarget, snapshotRelPath);
 
     if (existsSync(snapshotAbsPath)) {
+      // Keep browsable root view consistent for idempotent installs.
+      materializeActiveSnapshotView(specDir, snapshotAbsPath);
+
       // Already installed — return early
       const existingInstallJsonPath = join(specDir, INSTALL_JSON);
       let existingRecord = null;
@@ -181,6 +227,9 @@ export function installFromTarball({ tarballPath, target, installSource }) {
     const installJsonPath = join(specDir, INSTALL_JSON);
     writeFileSync(installJsonPath, JSON.stringify(installRecord, null, 2) + '\n', 'utf-8');
 
+    // 8. Materialize active snapshot to .spec-corpus root.
+    materializeActiveSnapshotView(specDir, snapshotAbsPath);
+
     return {
       alreadyInstalled: false,
       version,
@@ -189,7 +238,7 @@ export function installFromTarball({ tarballPath, target, installSource }) {
       installRecord,
     };
   } finally {
-    // 8. Clean up BOTH temp dirs (always, even on failure)
+    // 9. Clean up BOTH temp dirs (always, even on failure)
     for (const dir of [extractDir, stagingDir]) {
       try {
         if (existsSync(dir)) {

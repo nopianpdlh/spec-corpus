@@ -78,16 +78,29 @@ describe('build-snapshot', () => {
     assert.ok(existsSync(p), 'corpora/spec_backend/skills-lock.json must exist');
   });
 
-  it('no .agents/ directory staged under any corpus', () => {
+  it('.agents/ directory is staged for every corpus', () => {
     const corporaDir = join(stagingDir, 'corpora');
     const corpora = readdirSync(corporaDir);
     for (const corpusId of corpora) {
       const agentsDir = join(corporaDir, corpusId, '.agents');
       assert.ok(
-        !existsSync(agentsDir),
-        `.agents/ must NOT be staged under corpora/${corpusId}`
+        existsSync(agentsDir),
+        `.agents/ must be staged under corpora/${corpusId}`
       );
     }
+  });
+
+  it('stages backend-testing skill under spec_backend/.agents/skills', () => {
+    const skillPath = join(
+      stagingDir,
+      'corpora',
+      'spec_backend',
+      '.agents',
+      'skills',
+      'backend-testing',
+      'SKILL.md'
+    );
+    assert.ok(existsSync(skillPath), 'spec_backend/.agents/skills/backend-testing/SKILL.md must exist');
   });
 
   it('release-manifest-input.json exists one level above staging dir', () => {

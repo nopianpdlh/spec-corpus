@@ -113,6 +113,19 @@ describe('init — registry-first install', () => {
     assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
     assert.strictEqual(record.installSource, 'registry');
   });
+
+  it('materializes spec_backend/.agents/skills/backend-testing for direct browsing', async () => {
+    const skillPath = join(
+      target,
+      '.spec-corpus',
+      'spec_backend',
+      '.agents',
+      'skills',
+      'backend-testing',
+      'SKILL.md'
+    );
+    await access(skillPath);
+  });
 });
 
 describe('init — dry-run defaults to registry source', () => {
