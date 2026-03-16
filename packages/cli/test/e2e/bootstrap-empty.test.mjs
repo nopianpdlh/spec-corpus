@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { mkdir, rm, readFile, access, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { runBootstrap } from '../../src/commands/bootstrap.mjs';
 
 // ---------------------------------------------------------------------------
@@ -63,11 +63,26 @@ function parseJsonLine(output) {
   return JSON.parse(line);
 }
 
+async function withRegistryFixture(fn) {
+  const prev = process.env.SPEC_CORPUS_REGISTRY_TARBALL;
+  process.env.SPEC_CORPUS_REGISTRY_TARBALL = TARBALL_PATH;
+  try {
+    return await fn();
+  } finally {
+    if (prev === undefined) {
+      delete process.env.SPEC_CORPUS_REGISTRY_TARBALL;
+    } else {
+      process.env.SPEC_CORPUS_REGISTRY_TARBALL = prev;
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -124,7 +139,7 @@ describe('bootstrap — fresh install into empty directory', () => {
 
   it('reports correct version in stdout JSON', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
   });
 
   it('creates .spec-corpus/install.json', async () => {
@@ -141,17 +156,17 @@ describe('bootstrap — fresh install into empty directory', () => {
 
     assert.strictEqual(record.schemaVersion, 1);
     assert.strictEqual(record.corpusPackageName, '@spec-corpus/corpus');
-    assert.strictEqual(record.corpusPackageVersion, '0.1.0');
+    assert.strictEqual(record.corpusPackageVersion, corpusVersion);
     assert.ok(record.corpusPackageIntegrity.startsWith('sha512-'), 'integrity must start with sha512-');
     assert.strictEqual(record.cliPackageName, 'spec-corpus');
-    assert.strictEqual(record.activeSnapshotVersion, '0.1.0');
-    assert.strictEqual(record.activeSnapshotPath, '.spec-corpus/snapshots/0.1.0');
+    assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
+    assert.strictEqual(record.activeSnapshotPath, `.spec-corpus/snapshots/${corpusVersion}`);
     assert.ok(record.installedAt, 'installedAt must be present');
     assert.strictEqual(record.installSource, 'tarball');
   });
 
   it('creates snapshot directory with root/ and corpora/', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
+    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
     await access(snapshotDir);
 
     const rootDir = join(snapshotDir, 'root');
@@ -161,14 +176,14 @@ describe('bootstrap — fresh install into empty directory', () => {
   });
 
   it('snapshot root/ contains expected files', async () => {
-    const rootDir = join(target, '.spec-corpus', 'snapshots', '0.1.0', 'root');
+    const rootDir = join(target, '.spec-corpus', 'snapshots', corpusVersion, 'root');
     const entries = await readdir(rootDir);
     assert.ok(entries.includes('README.md'), 'root/ must contain README.md');
     assert.ok(entries.includes('ARCHITECTURE.md'), 'root/ must contain ARCHITECTURE.md');
   });
 
   it('snapshot corpora/ contains expected corpus directories', async () => {
-    const corporaDir = join(target, '.spec-corpus', 'snapshots', '0.1.0', 'corpora');
+    const corporaDir = join(target, '.spec-corpus', 'snapshots', corpusVersion, 'corpora');
     const entries = await readdir(corporaDir);
     assert.ok(entries.includes('spec_frontend'), 'corpora/ must contain spec_frontend');
     assert.ok(entries.includes('spec_backend'), 'corpora/ must contain spec_backend');
@@ -188,7 +203,7 @@ describe('bootstrap — fresh install into empty directory', () => {
       'stderr must contain [bootstrap] prefix'
     );
     assert.ok(
-      captured.stderr.includes('0.1.0'),
+      captured.stderr.includes(corpusVersion),
       'stderr must mention version'
     );
   });
@@ -242,7 +257,7 @@ describe('bootstrap — idempotent re-run', () => {
 
   it('second install reports correct version', () => {
     const json = parseJsonLine(secondCaptured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
   });
 
   it('second install stderr mentions already installed', () => {
@@ -339,10 +354,10 @@ describe('bootstrap — error: missing tarball', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Error handling — no --from and no registry
+// Registry-first bootstrap (no --from)
 // ---------------------------------------------------------------------------
 
-describe('bootstrap — error: no --from (registry not supported)', () => {
+describe('bootstrap — registry-first install without --from', () => {
   let target;
   let captured;
 
@@ -350,25 +365,32 @@ describe('bootstrap — error: no --from (registry not supported)', () => {
     target = join(tmpBase, 'no-from-project');
     await mkdir(target, { recursive: true });
 
-    captured = await captureOutput(async () => {
-      return runBootstrap({
-        target,
-        version: null,
-        from: null,
-        dryRun: false,
-      });
-    });
-  });
-
-  it('exits with code 1', () => {
-    assert.strictEqual(captured.result.exitCode, 1);
-  });
-
-  it('error message mentions registry not supported', () => {
-    const json = parseJsonLine(captured.stdout);
-    assert.ok(
-      json.error.includes('not yet supported'),
-      'error must mention registry not supported'
+    captured = await withRegistryFixture(() =>
+      captureOutput(async () => {
+        return runBootstrap({
+          target,
+          version: null,
+          from: null,
+          dryRun: false,
+        });
+      })
     );
+  });
+
+  it('exits with code 0', () => {
+    assert.strictEqual(captured.result.exitCode, 0);
+  });
+
+  it('uses the registry code path successfully', () => {
+    const json = parseJsonLine(captured.stdout);
+    assert.strictEqual(json.event, 'complete');
+    assert.strictEqual(json.command, 'bootstrap');
+    assert.strictEqual(json.version, corpusVersion);
+  });
+
+  it('records installSource="registry" in install.json', async () => {
+    const installJsonPath = join(target, '.spec-corpus', 'install.json');
+    const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
+    assert.strictEqual(record.installSource, 'registry');
   });
 });

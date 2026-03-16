@@ -3,7 +3,6 @@
  *
  * Tests:
  *   - Bootstrap from local file path (--from) succeeds
- *   - Verify --from is required (no registry support)
  *   - Verify --from path must exist
  *   - Offline update from tarball
  *
@@ -23,9 +22,17 @@ import {
 } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { runBootstrap } from '../../src/commands/bootstrap.mjs';
 import { runUpdate } from '../../src/commands/update.mjs';
+
+const corpusVersion = JSON.parse(
+  readFileSync(resolve('packages/corpus/package.json'), 'utf-8')
+).version;
+
+const cliVersion = JSON.parse(
+  readFileSync(resolve('packages/cli/package.json'), 'utf-8')
+).version;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -115,7 +122,7 @@ async function createFakeSnapshot(target) {
     corpusPackageVersion: '0.0.1',
     corpusPackageIntegrity: 'sha512-fakeintegrity',
     cliPackageName: 'spec-corpus',
-    cliPackageVersion: '0.1.0',
+    cliPackageVersion: cliVersion,
     activeSnapshotVersion: '0.0.1',
     activeSnapshotPath: '.spec-corpus/snapshots/0.0.1',
     installedAt: '2025-01-01T00:00:00.000Z',
@@ -135,7 +142,7 @@ async function createFakeSnapshot(target) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -190,11 +197,11 @@ describe('offline — bootstrap from local file path', () => {
 
   it('reports correct version', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
   });
 
   it('creates snapshot directory with expected structure', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
+    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
     await access(snapshotDir);
     await access(join(snapshotDir, 'root'));
     await access(join(snapshotDir, 'corpora'));
@@ -205,7 +212,7 @@ describe('offline — bootstrap from local file path', () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
     assert.strictEqual(record.installSource, 'tarball');
-    assert.strictEqual(record.activeSnapshotVersion, '0.1.0');
+    assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
   });
 
   it('does not leave temp staging directories', async () => {
@@ -213,38 +220,6 @@ describe('offline — bootstrap from local file path', () => {
     const entries = await readdir(specDir);
     const tmpDirs = entries.filter((e) => e.startsWith('.tmp-'));
     assert.strictEqual(tmpDirs.length, 0, 'No .tmp-* staging dirs should remain');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Error: --from is required (registry not supported)
-// ---------------------------------------------------------------------------
-
-describe('offline — error: no --from (registry not supported)', () => {
-  let target;
-  let captured;
-
-  before(async () => {
-    target = join(tmpBase, 'no-from');
-    await mkdir(target, { recursive: true });
-
-    captured = await captureOutput(() =>
-      runBootstrap({
-        target,
-        version: null,
-        from: null,
-        dryRun: false,
-      })
-    );
-  });
-
-  it('exits with code 1', () => {
-    assert.strictEqual(captured.result.exitCode, 1);
-  });
-
-  it('error message mentions registry not supported', () => {
-    const json = parseJsonLine(captured.stdout);
-    assert.ok(json.error.includes('not yet supported'));
   });
 });
 
@@ -328,20 +303,20 @@ describe('offline — update from tarball after bootstrap', () => {
 
   it('reports correct version and previousVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
     assert.strictEqual(json.previousVersion, '0.0.1');
   });
 
   it('install.json updated to v0.1.0 with tarball source', async () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
-    assert.strictEqual(record.activeSnapshotVersion, '0.1.0');
+    assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
     assert.strictEqual(record.installSource, 'tarball');
     assert.ok(record.updatedAt, 'updatedAt must be present');
   });
 
   it('new snapshot v0.1.0 has correct structure', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
+    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
     await access(snapshotDir);
     await access(join(snapshotDir, 'root'));
     await access(join(snapshotDir, 'corpora'));

@@ -18,9 +18,8 @@
  *   stderr: human-readable planned actions
  */
 
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
 import { updateFromTarball } from '../update.mjs';
+import { resolveCorpusTarball } from '../resolve-corpus-tarball.mjs';
 
 /**
  * @typedef {Object} UpdateOptions
@@ -70,78 +69,77 @@ export async function runUpdate(options) {
 
   // --- Live update ---
   try {
-    // Resolve the tarball path
-    const tarballPath = resolveTarball({ from, version });
+    const resolvedTarball = resolveCorpusTarball({ from, version });
 
-    const updateResult = updateFromTarball({
-      tarballPath,
-      target,
-      force: !!force,
-      installSource: from ? 'tarball' : 'registry',
-    });
+    try {
+      const updateResult = updateFromTarball({
+        tarballPath: resolvedTarball.tarballPath,
+        target,
+        force: !!force,
+        installSource: resolvedTarball.installSource,
+      });
 
-    // Already active — same version
-    if (updateResult.alreadyActive) {
+      if (updateResult.alreadyActive) {
+        const result = {
+          event: 'already-active',
+          command: 'update',
+          target,
+          version: updateResult.version,
+        };
+        process.stdout.write(JSON.stringify(result) + '\n');
+        process.stderr.write(`[update] already active — version ${updateResult.version}\n`);
+        return { exitCode: 0 };
+      }
+
+      if (updateResult.blocked) {
+        const result = {
+          event: 'conflict',
+          command: 'update',
+          target,
+          activeVersion: updateResult.previousVersion,
+          conflicts: updateResult.conflicts,
+        };
+        process.stdout.write(JSON.stringify(result) + '\n');
+
+        process.stderr.write(`[update] BLOCKED — active snapshot v${updateResult.previousVersion} has local changes\n`);
+        process.stderr.write(`  ${updateResult.conflicts.length} conflict(s):\n`);
+        for (const c of updateResult.conflicts) {
+          process.stderr.write(`    ${c.status}: ${c.file}\n`);
+        }
+        process.stderr.write(`  Use --force to discard local changes and proceed.\n`);
+
+        return { exitCode: 1 };
+      }
+
       const result = {
-        event: 'already-active',
+        event: 'complete',
         command: 'update',
         target,
         version: updateResult.version,
+        previousVersion: updateResult.previousVersion,
+        snapshotPath: updateResult.snapshotPath,
+        installJsonPath: updateResult.installJsonPath,
       };
-      process.stdout.write(JSON.stringify(result) + '\n');
-      process.stderr.write(`[update] already active — version ${updateResult.version}\n`);
-      return { exitCode: 0 };
-    }
 
-    // Blocked by dirty state
-    if (updateResult.blocked) {
-      const result = {
-        event: 'conflict',
-        command: 'update',
-        target,
-        activeVersion: updateResult.previousVersion,
-        conflicts: updateResult.conflicts,
-      };
-      process.stdout.write(JSON.stringify(result) + '\n');
-
-      process.stderr.write(`[update] BLOCKED — active snapshot v${updateResult.previousVersion} has local changes\n`);
-      process.stderr.write(`  ${updateResult.conflicts.length} conflict(s):\n`);
-      for (const c of updateResult.conflicts) {
-        process.stderr.write(`    ${c.status}: ${c.file}\n`);
+      if (updateResult.forceWarning) {
+        result.forceWarning = updateResult.forceWarning;
+        result.conflicts = updateResult.conflicts;
       }
-      process.stderr.write(`  Use --force to discard local changes and proceed.\n`);
 
-      return { exitCode: 1 };
+      process.stdout.write(JSON.stringify(result) + '\n');
+
+      process.stderr.write(`[update] updated corpus v${updateResult.previousVersion} → v${updateResult.version}\n`);
+      process.stderr.write(`  target:   ${target}\n`);
+      process.stderr.write(`  snapshot: ${updateResult.snapshotPath}\n`);
+      process.stderr.write(`  record:   ${updateResult.installJsonPath}\n`);
+      if (updateResult.forceWarning) {
+        process.stderr.write(`  WARNING: ${updateResult.forceWarning}\n`);
+      }
+
+      return { exitCode: 0 };
+    } finally {
+      resolvedTarball.cleanup();
     }
-
-    // Successful update
-    const result = {
-      event: 'complete',
-      command: 'update',
-      target,
-      version: updateResult.version,
-      previousVersion: updateResult.previousVersion,
-      snapshotPath: updateResult.snapshotPath,
-      installJsonPath: updateResult.installJsonPath,
-    };
-
-    // Add force warning and conflicts if --force was used with dirty state
-    if (updateResult.forceWarning) {
-      result.forceWarning = updateResult.forceWarning;
-      result.conflicts = updateResult.conflicts;
-    }
-
-    process.stdout.write(JSON.stringify(result) + '\n');
-
-    process.stderr.write(`[update] updated corpus v${updateResult.previousVersion} → v${updateResult.version}\n`);
-    process.stderr.write(`  target:   ${target}\n`);
-    process.stderr.write(`  snapshot: ${updateResult.snapshotPath}\n`);
-    process.stderr.write(`  record:   ${updateResult.installJsonPath}\n`);
-    if (updateResult.forceWarning) {
-      process.stderr.write(`  WARNING: ${updateResult.forceWarning}\n`);
-    }
-
-    return { exitCode: 0 };
   } catch (err) {
     const result = {
       event: 'error',
@@ -153,29 +151,6 @@ export async function runUpdate(options) {
     process.stderr.write(`[update] ERROR: ${err.message}\n`);
     return { exitCode: 1 };
   }
-}
-
-/**
- * Resolve the tarball path from options.
- * If --from is provided, use that local file.
- * Otherwise, registry resolution is not yet implemented (v1 requires --from).
- *
- * @param {{ from: string|null, version: string|null }} opts
- * @returns {string} absolute path to tarball
- */
-function resolveTarball({ from, version }) {
-  if (from) {
-    const absPath = resolve(from);
-    if (!existsSync(absPath)) {
-      throw new Error(`Tarball not found: ${absPath}`);
-    }
-    return absPath;
-  }
-
-  // Registry resolution: not implemented in v1
-  throw new Error(
-    'Registry install is not yet supported. Use --from <path.tgz> to provide a local tarball.'
-  );
 }
 
 /**

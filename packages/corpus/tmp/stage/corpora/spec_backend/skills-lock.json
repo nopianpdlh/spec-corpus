@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "design-api": {
+      "source": "spec_backend/.agents/skills/design-api/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "api-documentation": {
+      "source": "spec_backend/.agents/skills/api-documentation/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "authentication-setup": {
+      "source": "spec_backend/.agents/skills/authentication-setup/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "backend-testing": {
+      "source": "spec_backend/.agents/skills/backend-testing/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "database-schema-design": {
+      "source": "spec_backend/.agents/skills/database-schema-design/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    }
+  }
+}

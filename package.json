@@ -10,8 +10,8 @@
   },
   "scripts": {
     "test": "node --test packages/*/test/**/*.test.js",
-    "pack:corpus": "npm pack --workspace=packages/corpus --pack-destination ./tmp/dist",
-    "pack:cli": "npm pack --workspace=packages/cli --pack-destination ./tmp/dist",
+    "pack:corpus": "node scripts/pack-workspace.mjs packages/corpus",
+    "pack:cli": "node scripts/pack-workspace.mjs packages/cli",
     "verify:release": "node scripts/verify-release.mjs"
   }
 }

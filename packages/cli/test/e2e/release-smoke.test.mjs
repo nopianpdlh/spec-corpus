@@ -2,7 +2,7 @@
  * release-smoke.test.mjs — e2e smoke test for the CLI as a subprocess
  *
  * Tests:
- *   - Can bootstrap from the built tarball via subprocess
+ *   - Can init from the built tarball via subprocess
  *   - Can run status command and get expected output
  */
 
@@ -41,20 +41,20 @@ after(async () => {
 });
 
 describe('release smoke test', () => {
-  it('bootstraps successfully via subprocess', () => {
+  it('initializes successfully via subprocess', () => {
     const result = spawnSync(
       process.execPath,
-      [CLI_BIN, 'bootstrap', '--target', tmpBase, '--from', TARBALL_PATH],
+      [CLI_BIN, 'init', '--target', tmpBase, '--from', TARBALL_PATH],
       {
         encoding: 'utf-8',
         cwd: resolve('.'),
       }
     );
 
-    assert.strictEqual(result.status, 0, `Bootstrap failed: ${result.stderr || result.stdout}`);
+    assert.strictEqual(result.status, 0, `Init failed: ${result.stderr || result.stdout}`);
     
     const installJsonPath = join(tmpBase, '.spec-corpus', 'install.json');
-    assert.ok(existsSync(installJsonPath), 'install.json should exist after bootstrap');
+    assert.ok(existsSync(installJsonPath), 'install.json should exist after init');
   });
 
   it('runs status successfully via subprocess', () => {

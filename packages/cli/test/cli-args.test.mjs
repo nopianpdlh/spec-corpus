@@ -14,8 +14,8 @@ import { parseArgs, buildUsage, COMMANDS } from '../src/cli-args.mjs';
 // ---------------------------------------------------------------------------
 
 describe('COMMANDS', () => {
-  it('contains exactly the 4 v1 commands', () => {
-    assert.deepStrictEqual(COMMANDS, ['bootstrap', 'update', 'status', 'verify']);
+  it('contains init plus the 4 lifecycle commands', () => {
+    assert.deepStrictEqual(COMMANDS, ['init', 'bootstrap', 'update', 'status', 'verify']);
   });
 });
 
@@ -47,6 +47,12 @@ describe('parseArgs — --help flag', () => {
 // ---------------------------------------------------------------------------
 
 describe('parseArgs — command extraction', () => {
+  it('parses "init" as command', () => {
+    const result = parseArgs(['init']);
+    assert.strictEqual(result.command, 'init');
+    assert.strictEqual(result.errors.length, 0);
+  });
+
   it('parses "bootstrap" as command', () => {
     const result = parseArgs(['bootstrap', '--target', '/tmp/x']);
     assert.strictEqual(result.command, 'bootstrap');
@@ -83,6 +89,12 @@ describe('parseArgs — command extraction', () => {
 // ---------------------------------------------------------------------------
 
 describe('parseArgs — --target flag', () => {
+  it('defaults target to current directory for init', () => {
+    const result = parseArgs(['init']);
+    assert.strictEqual(result.flags.target, '.');
+    assert.strictEqual(result.errors.length, 0);
+  });
+
   it('captures --target value (space syntax)', () => {
     const result = parseArgs(['bootstrap', '--target', './my-project']);
     assert.strictEqual(result.flags.target, './my-project');
@@ -242,12 +254,18 @@ describe('buildUsage', () => {
     assert.ok(usage.length > 0);
   });
 
-  it('mentions all 4 commands', () => {
+  it('mentions init plus the lifecycle commands', () => {
     const usage = buildUsage();
+    assert.ok(usage.includes('init'));
     assert.ok(usage.includes('bootstrap'));
     assert.ok(usage.includes('update'));
     assert.ok(usage.includes('status'));
     assert.ok(usage.includes('verify'));
+  });
+
+  it('promotes init as the primary quick-start example', () => {
+    const usage = buildUsage();
+    assert.ok(usage.includes('spec-corpus init'));
   });
 
   it('mentions all v1 flags', () => {

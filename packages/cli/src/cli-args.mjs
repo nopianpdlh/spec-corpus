@@ -4,6 +4,7 @@
  * No external dependencies. Parses process.argv manually.
  *
  * V1 locked command signatures:
+ *   init      [--target <path>] [--version <semver>] [--from <tgz>] [--dry-run]
  *   bootstrap --target <path> [--version <semver>] [--from <tgz>] [--dry-run]
  *   update    --target <path> [--version <semver>] [--from <tgz>] [--force] [--dry-run]
  *   status    --target <path>
@@ -12,7 +13,7 @@
  * Returns a ParseResult: { command, args, errors }
  */
 
-export const COMMANDS = ['bootstrap', 'update', 'status', 'verify'];
+export const COMMANDS = ['init', 'bootstrap', 'update', 'status', 'verify'];
 
 /**
  * @typedef {Object} ParsedArgs
@@ -149,6 +150,11 @@ export function parseArgs(argv) {
     errors.push(`Unknown flag: ${flag}`);
   }
 
+  // Apply command defaults before validation
+  if (command === 'init' && !flags.target) {
+    flags.target = '.';
+  }
+
   // Validate required flags per command (only when not in help mode)
   if (command !== null && !flags.help) {
     if (COMMANDS.includes(command)) {
@@ -182,12 +188,14 @@ USAGE
   spec-corpus <command> [flags]
 
 COMMANDS
+  init        Install the spec-corpus into the current project (friendly default)
   bootstrap   Install the spec-corpus into a target project directory
   update      Update an existing spec-corpus installation to a newer version
   status      Report the installation status of the spec-corpus in a target directory
   verify      Verify the integrity of the installed spec-corpus files
 
 FLAGS (per command)
+  init       [--target <path>]  [--version <semver>]  [--from <tgz>]  [--dry-run]
   bootstrap  --target <path>  [--version <semver>]  [--from <tgz>]  [--dry-run]
   update     --target <path>  [--version <semver>]  [--from <tgz>]  [--force]  [--dry-run]
   status     --target <path>
@@ -197,6 +205,8 @@ GLOBAL FLAGS
   --help, -h   Show this help message
 
 EXAMPLES
+  spec-corpus init
+  spec-corpus init --target ./my-project
   spec-corpus bootstrap --target ./my-project
   spec-corpus bootstrap --target ./my-project --dry-run
   spec-corpus update --target ./my-project --force
