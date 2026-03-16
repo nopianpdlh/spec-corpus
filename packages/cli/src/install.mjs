@@ -23,7 +23,7 @@ import {
   readdirSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { extractTarball } from './tar-extract.mjs';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -50,37 +50,6 @@ function computeIntegrity(filePath) {
   const buf = readFileSync(filePath);
   const hash = createHash('sha512').update(buf).digest('base64');
   return `sha512-${hash}`;
-}
-
-/**
- * Extract a .tgz tarball into destDir using the system `tar` command.
- * @param {string} tgzPath  - absolute path to .tgz file
- * @param {string} destDir  - absolute path to extraction target
- */
-function extractTarball(tgzPath, destDir) {
-  mkdirSync(destDir, { recursive: true });
-
-  // On Windows, GNU tar interprets "C:" as a remote host and backslashes
-  // confuse it. Convert to forward slashes and use --force-local.
-  let tarPath = tgzPath;
-  let tarDest = destDir;
-  const args = ['xf'];
-  if (process.platform === 'win32') {
-    tarPath = tgzPath.replace(/\\/g, '/');
-    tarDest = destDir.replace(/\\/g, '/');
-    args.push(tarPath, '--force-local', '-C', tarDest);
-  } else {
-    args.push(tarPath, '-C', tarDest);
-  }
-
-  const result = spawnSync('tar', args, {
-    encoding: 'utf-8',
-    timeout: 30_000,
-  });
-  if (result.status !== 0) {
-    const msg = (result.stderr || result.error?.message || 'unknown error').trim();
-    throw new Error(`Failed to extract tarball: ${msg}`);
-  }
 }
 
 // ---------------------------------------------------------------------------
