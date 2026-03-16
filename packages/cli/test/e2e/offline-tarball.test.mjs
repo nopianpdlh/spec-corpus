@@ -201,11 +201,21 @@ describe('offline — bootstrap from local file path', () => {
   });
 
   it('creates snapshot directory with expected structure', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
-    await access(snapshotDir);
-    await access(join(snapshotDir, 'root'));
-    await access(join(snapshotDir, 'corpora'));
-    await access(join(snapshotDir, 'release-manifest.json'));
+    const specDir = join(target, '.spec-corpus');
+    await access(join(specDir, 'README.md'));
+    await access(join(specDir, 'spec_backend'));
+    await access(join(specDir, 'release-manifest.json'));
+  });
+
+  it('does not create snapshots directory on fresh offline bootstrap', async () => {
+    const snapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    let exists = true;
+    try {
+      await access(snapshotsDir);
+    } catch {
+      exists = false;
+    }
+    assert.strictEqual(exists, false);
   });
 
   it('writes install.json with installSource="tarball"', async () => {
@@ -213,6 +223,8 @@ describe('offline — bootstrap from local file path', () => {
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
     assert.strictEqual(record.installSource, 'tarball');
     assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
+    assert.strictEqual(record.layoutVersion, 2);
+    assert.strictEqual(record.activeSnapshotPath, undefined);
   });
 
   it('does not leave temp staging directories', async () => {
@@ -315,12 +327,22 @@ describe('offline — update from tarball after bootstrap', () => {
     assert.ok(record.updatedAt, 'updatedAt must be present');
   });
 
-  it('new snapshot v0.1.0 has correct structure', async () => {
-    const snapshotDir = join(target, '.spec-corpus', 'snapshots', corpusVersion);
-    await access(snapshotDir);
-    await access(join(snapshotDir, 'root'));
-    await access(join(snapshotDir, 'corpora'));
-    await access(join(snapshotDir, 'release-manifest.json'));
+  it('flat canonical root has correct structure after offline update', async () => {
+    const specDir = join(target, '.spec-corpus');
+    await access(join(specDir, 'README.md'));
+    await access(join(specDir, 'spec_backend'));
+    await access(join(specDir, 'release-manifest.json'));
+  });
+
+  it('legacy snapshots directory is removed after offline update', async () => {
+    const snapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    let exists = true;
+    try {
+      await access(snapshotsDir);
+    } catch {
+      exists = false;
+    }
+    assert.strictEqual(exists, false);
   });
 
   it('does not leave temp staging directories', async () => {

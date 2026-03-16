@@ -76,5 +76,29 @@ describe('release smoke test', () => {
     const statusData = JSON.parse(jsonLine);
     assert.strictEqual(statusData.status, 'installed', 'Expected status to be "installed"');
     assert.strictEqual(statusData.activeVersion, corpusVersion, `Expected activeVersion to be "${corpusVersion}"`);
+    assert.strictEqual(statusData.installRecord.layoutVersion, 2, 'Expected layoutVersion=2');
+  });
+
+  it('writes flat canonical payload and does not create snapshots directory', () => {
+    assert.ok(existsSync(join(tmpBase, '.spec-corpus', 'README.md')), 'README.md should exist in flat root');
+    assert.ok(
+      existsSync(join(tmpBase, '.spec-corpus', 'spec_backend', '.agents', 'skills', 'backend-testing', 'SKILL.md')),
+      'backend-testing skill should exist in flat root payload'
+    );
+    assert.ok(existsSync(join(tmpBase, '.spec-corpus', 'release-manifest.json')), 'release-manifest.json should exist in flat root');
+    assert.ok(!existsSync(join(tmpBase, '.spec-corpus', 'snapshots')), 'snapshots directory should not exist for layout v2');
+  });
+
+  it('verify command succeeds on fresh flat install', () => {
+    const result = spawnSync(
+      process.execPath,
+      [CLI_BIN, 'verify', '--target', tmpBase],
+      {
+        encoding: 'utf-8',
+        cwd: resolve('.'),
+      }
+    );
+
+    assert.strictEqual(result.status, 0, `Verify failed: ${result.stderr || result.stdout}`);
   });
 });
