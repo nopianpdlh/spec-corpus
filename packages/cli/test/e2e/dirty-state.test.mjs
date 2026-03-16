@@ -1,7 +1,7 @@
 /**
- * dirty-state.test.mjs — e2e tests for dirty snapshot detection
+ * dirty-state.test.mjs — e2e tests for dirty managed payload detection
  *
- * Tests the verify and status commands when snapshot files have been
+ * Tests the verify and status commands when managed payload files have been
  * modified, deleted, or unexpected files have been added.
  *
  * Run with: node --test packages/cli/test/e2e/dirty-state.test.mjs
@@ -12,7 +12,7 @@ import assert from 'node:assert/strict';
 import { mkdir, rm, writeFile, unlink, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { runBootstrap } from '../../src/commands/bootstrap.mjs';
 import { runVerify } from '../../src/commands/verify.mjs';
 import { runStatus } from '../../src/commands/status.mjs';
@@ -76,7 +76,8 @@ async function bootstrapFresh(target) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -110,15 +111,8 @@ describe('verify — detects modified file', () => {
     target = join(tmpBase, 'modified-file');
     await bootstrapFresh(target);
 
-    // Modify a file in the snapshot
-    const readmePath = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0',
-      'root',
-      'README.md'
-    );
+    // Modify a file in the flat managed payload
+    const readmePath = join(target, '.spec-corpus', 'README.md');
     await writeFile(readmePath, 'MODIFIED CONTENT\n', 'utf-8');
 
     captured = await captureOutput(() => runVerify({ target }));
@@ -135,8 +129,8 @@ describe('verify — detects modified file', () => {
 
   it('reports the modified file in conflicts', () => {
     const json = parseJsonLine(captured.stdout);
-    const modified = json.conflicts.find((c) => c.file === 'root/README.md');
-    assert.ok(modified, 'Must report root/README.md as conflict');
+    const modified = json.conflicts.find((c) => c.file === 'README.md');
+    assert.ok(modified, 'Must report README.md as conflict');
     assert.strictEqual(modified.status, 'modified');
   });
 
@@ -163,15 +157,8 @@ describe('verify — detects missing file', () => {
     target = join(tmpBase, 'missing-file');
     await bootstrapFresh(target);
 
-    // Delete a file from the snapshot
-    const readmePath = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0',
-      'root',
-      'README.md'
-    );
+    // Delete a file from the flat managed payload
+    const readmePath = join(target, '.spec-corpus', 'README.md');
     await unlink(readmePath);
 
     captured = await captureOutput(() => runVerify({ target }));
@@ -188,8 +175,8 @@ describe('verify — detects missing file', () => {
 
   it('reports the missing file in conflicts', () => {
     const json = parseJsonLine(captured.stdout);
-    const missing = json.conflicts.find((c) => c.file === 'root/README.md');
-    assert.ok(missing, 'Must report root/README.md as conflict');
+    const missing = json.conflicts.find((c) => c.file === 'README.md');
+    assert.ok(missing, 'Must report README.md as conflict');
     assert.strictEqual(missing.status, 'missing');
   });
 });
@@ -206,15 +193,8 @@ describe('verify — detects unexpected file', () => {
     target = join(tmpBase, 'unexpected-file');
     await bootstrapFresh(target);
 
-    // Add an unexpected file to the snapshot
-    const extraPath = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0',
-      'root',
-      'HACKED.md'
-    );
+    // Add an unexpected file to the flat managed payload
+    const extraPath = join(target, '.spec-corpus', 'HACKED.md');
     await writeFile(extraPath, 'Unexpected file\n', 'utf-8');
 
     captured = await captureOutput(() => runVerify({ target }));
@@ -232,9 +212,9 @@ describe('verify — detects unexpected file', () => {
   it('reports the unexpected file in conflicts', () => {
     const json = parseJsonLine(captured.stdout);
     const unexpected = json.conflicts.find(
-      (c) => c.file === 'root/HACKED.md'
+      (c) => c.file === 'HACKED.md'
     );
-    assert.ok(unexpected, 'Must report root/HACKED.md as conflict');
+    assert.ok(unexpected, 'Must report HACKED.md as conflict');
     assert.strictEqual(unexpected.status, 'unexpected');
   });
 });
@@ -251,26 +231,21 @@ describe('verify — multiple dirty categories', () => {
     target = join(tmpBase, 'multi-dirty');
     await bootstrapFresh(target);
 
-    const snapshotRoot = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0'
-    );
+    const specRoot = join(target, '.spec-corpus');
 
     // Modify a file
     await writeFile(
-      join(snapshotRoot, 'root', 'README.md'),
+      join(specRoot, 'README.md'),
       'MODIFIED\n',
       'utf-8'
     );
 
     // Delete a file
-    await unlink(join(snapshotRoot, 'root', 'CONTRIBUTING.md'));
+    await unlink(join(specRoot, 'CONTRIBUTING.md'));
 
     // Add an unexpected file
     await writeFile(
-      join(snapshotRoot, 'root', 'EXTRA.md'),
+      join(specRoot, 'EXTRA.md'),
       'Extra\n',
       'utf-8'
     );
@@ -315,15 +290,8 @@ describe('status — reports dirty for modified snapshot', () => {
     target = join(tmpBase, 'status-dirty');
     await bootstrapFresh(target);
 
-    // Modify a file
-    const readmePath = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0',
-      'root',
-      'README.md'
-    );
+    // Modify a file in flat managed payload
+    const readmePath = join(target, '.spec-corpus', 'README.md');
     await writeFile(readmePath, 'TAMPERED\n', 'utf-8');
 
     captured = await captureOutput(() => runStatus({ target }));
@@ -345,7 +313,7 @@ describe('status — reports dirty for modified snapshot', () => {
 
   it('reports activeVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.activeVersion, '0.1.0');
+    assert.strictEqual(json.activeVersion, corpusVersion);
   });
 
   it('stderr includes integrity: dirty', () => {

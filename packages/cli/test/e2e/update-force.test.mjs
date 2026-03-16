@@ -151,7 +151,7 @@ async function makeDirty(target) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -220,8 +220,8 @@ describe('update — blocked by dirty state', () => {
 
   it('conflicts include the modified file', () => {
     const json = parseJsonLine(captured.stdout);
-    const modified = json.conflicts.find((c) => c.file === 'root/README.md');
-    assert.ok(modified, 'Must report root/README.md as conflict');
+    const modified = json.conflicts.find((c) => c.file === 'README.md');
+    assert.ok(modified, 'Must report README.md as conflict');
     assert.strictEqual(modified.status, 'modified');
   });
 
@@ -231,9 +231,9 @@ describe('update — blocked by dirty state', () => {
     assert.strictEqual(record.activeSnapshotVersion, '0.0.1');
   });
 
-  it('new snapshot was NOT created', () => {
-    const newSnapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
-    assert.ok(!existsSync(newSnapshotDir), 'v0.1.0 snapshot must NOT exist when blocked');
+  it('flat root manifest was NOT created', () => {
+    const manifestPath = join(target, '.spec-corpus', 'release-manifest.json');
+    assert.ok(!existsSync(manifestPath), 'release-manifest must NOT exist when update is blocked');
   });
 
   it('stderr mentions BLOCKED', () => {
@@ -282,7 +282,7 @@ describe('update — forced through dirty state', () => {
 
   it('reports correct version and previousVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.version, '0.1.0');
+    assert.strictEqual(json.version, corpusVersion);
     assert.strictEqual(json.previousVersion, '0.0.1');
   });
 
@@ -301,11 +301,12 @@ describe('update — forced through dirty state', () => {
     assert.ok(json.conflicts.length > 0);
   });
 
-  it('install.json now points to v0.1.0', async () => {
+  it('install.json now points to latest and layoutVersion=2', async () => {
     const installJsonPath = join(target, '.spec-corpus', 'install.json');
     const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
-    assert.strictEqual(record.activeSnapshotVersion, '0.1.0');
-    assert.strictEqual(record.activeSnapshotPath, '.spec-corpus/snapshots/0.1.0');
+    assert.strictEqual(record.activeSnapshotVersion, corpusVersion);
+    assert.strictEqual(record.layoutVersion, 2);
+    assert.strictEqual(record.activeSnapshotPath, undefined);
   });
 
   it('install.json preserves original installedAt', async () => {
@@ -320,16 +321,16 @@ describe('update — forced through dirty state', () => {
     assert.ok(record.updatedAt, 'updatedAt must be present');
   });
 
-  it('creates new v0.1.0 snapshot', async () => {
-    const newSnapshotDir = join(target, '.spec-corpus', 'snapshots', '0.1.0');
-    assert.ok(existsSync(newSnapshotDir), 'v0.1.0 snapshot must exist');
-    await access(join(newSnapshotDir, 'root'));
-    await access(join(newSnapshotDir, 'corpora'));
+  it('creates flat canonical root payload and manifest', async () => {
+    const specDir = join(target, '.spec-corpus');
+    await access(join(specDir, 'README.md'));
+    await access(join(specDir, 'spec_backend'));
+    await access(join(specDir, 'release-manifest.json'));
   });
 
-  it('old v0.0.1 snapshot is preserved', () => {
-    const oldSnapshotDir = join(target, '.spec-corpus', 'snapshots', '0.0.1');
-    assert.ok(existsSync(oldSnapshotDir), 'Old snapshot 0.0.1 must still exist');
+  it('legacy snapshots directory is removed after forced migration/update', () => {
+    const oldSnapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    assert.ok(!existsSync(oldSnapshotsDir), 'Legacy snapshots/ must be removed');
   });
 
   it('stderr includes WARNING about force', () => {

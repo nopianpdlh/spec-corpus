@@ -1,41 +1,19 @@
 /**
- * verify-snapshot.mjs — snapshot integrity verifier engine
+ * verify-snapshot.mjs — managed corpus integrity verifier
  *
- * Reads the release manifest from a snapshot directory, computes sha256
- * hashes of every file on disk, and produces a ConflictReport indicating
- * whether the snapshot is clean or dirty.
- *
- * Dirty-state categories:
- *   - modified: file exists but hash doesn't match manifest
- *   - missing:  file listed in manifest but not on disk
- *   - unexpected: file exists in snapshot but NOT in manifest
+ * Verifies the canonical flat layout under `.spec-corpus/` against
+ * `.spec-corpus/release-manifest.json`.
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, posix } from 'node:path';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Compute sha256 hex hash of a file.
- * @param {string} filePath
- * @returns {string}
- */
 function sha256Hex(filePath) {
   const buf = readFileSync(filePath);
   return createHash('sha256').update(buf).digest('hex');
 }
 
-/**
- * Recursively enumerate all files under a directory.
- * Returns paths relative to `baseDir` using forward slashes.
- * @param {string} dir - absolute path to walk
- * @param {string} baseDir - absolute path used as relative root
- * @returns {string[]}
- */
 function walkDir(dir, baseDir) {
   const results = [];
   if (!existsSync(dir)) return results;
@@ -45,7 +23,6 @@ function walkDir(dir, baseDir) {
     if (entry.isDirectory()) {
       results.push(...walkDir(fullPath, baseDir));
     } else if (entry.isFile()) {
-      // Normalize to forward slashes for cross-platform consistency
       const rel = relative(baseDir, fullPath).replace(/\\/g, '/');
       results.push(rel);
     }
@@ -53,58 +30,25 @@ function walkDir(dir, baseDir) {
   return results;
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
 /**
- * @typedef {Object} Conflict
- * @property {string} file - relative path of the conflicting file
- * @property {"modified"|"missing"|"unexpected"} status
+ * @param {{ target: string, installRecord?: any }} opts
  */
-
-/**
- * @typedef {Object} ConflictReport
- * @property {boolean} clean
- * @property {Conflict[]} conflicts
- * @property {string} activeVersion
- * @property {string} snapshotPath
- */
-
-/**
- * Verify the integrity of the active managed snapshot.
- *
- * @param {Object} opts
- * @param {string} opts.target - absolute path to the consumer project root
- * @returns {ConflictReport}
- * @throws {Error} if install.json or release-manifest.json cannot be read
- */
-export function verifySnapshot({ target }) {
-  // 1. Read install.json
+export function verifySnapshot({ target, installRecord: providedInstallRecord }) {
   const installJsonPath = join(target, '.spec-corpus', 'install.json');
-  if (!existsSync(installJsonPath)) {
+  if (!providedInstallRecord && !existsSync(installJsonPath)) {
     throw new Error(`Not installed: ${installJsonPath} not found`);
   }
 
-  const installRecord = JSON.parse(readFileSync(installJsonPath, 'utf-8'));
-  const snapshotRelPath = installRecord.activeSnapshotPath;
+  const installRecord = providedInstallRecord || JSON.parse(readFileSync(installJsonPath, 'utf-8'));
   const version = installRecord.activeSnapshotVersion;
+  const specDir = join(target, '.spec-corpus');
 
-  if (!snapshotRelPath) {
-    throw new Error('install.json missing activeSnapshotPath');
-  }
-
-  const snapshotAbsPath = join(target, snapshotRelPath);
-  if (!existsSync(snapshotAbsPath)) {
-    throw new Error(`Snapshot directory not found: ${snapshotAbsPath}`);
-  }
-
-  // 2. Read release-manifest.json from inside the snapshot
-  const manifestPath = join(snapshotAbsPath, 'release-manifest.json');
+  const isLegacyV1 = !installRecord.layoutVersion || installRecord.layoutVersion === 1 || !!installRecord.activeSnapshotPath;
+  const manifestPath = isLegacyV1 && installRecord.activeSnapshotPath
+    ? resolve(target, installRecord.activeSnapshotPath, 'release-manifest.json')
+    : join(specDir, 'release-manifest.json');
   if (!existsSync(manifestPath)) {
-    throw new Error(
-      `release-manifest.json not found in snapshot at: ${manifestPath}`
-    );
+    throw new Error(`release-manifest.json not found at: ${manifestPath}`);
   }
 
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
@@ -113,27 +57,38 @@ export function verifySnapshot({ target }) {
     throw new Error('release-manifest.json missing files array');
   }
 
-  // 3. Build a map of expected files: path -> hash
   const expectedMap = new Map();
   for (const entry of manifestFiles) {
-    expectedMap.set(entry.path, entry.hash);
+    const flatPath = entry.path
+      .replace(/^root\//, '')
+      .replace(/^corpora\//, '');
+    expectedMap.set(flatPath, entry.hash);
   }
 
-  // 4. Walk the snapshot to find actual files (excluding release-manifest.json itself)
-  const actualFiles = walkDir(snapshotAbsPath, snapshotAbsPath).filter(
-    (f) => f !== 'release-manifest.json'
-  );
-  const actualSet = new Set(actualFiles);
+  const contentBaseDir = isLegacyV1 && installRecord.activeSnapshotPath
+    ? resolve(target, installRecord.activeSnapshotPath)
+    : specDir;
 
-  // 5. Compare
+  const actualFiles = walkDir(contentBaseDir, contentBaseDir).filter((f) => {
+    if (f === 'install.json') return false;
+    if (f === 'release-manifest.json') return false;
+    if (f.startsWith('.tmp-')) return false;
+    return true;
+  });
+  const normalizedActualFiles = actualFiles.map((f) =>
+    isLegacyV1 ? legacyPathToFlatPath(f) : f
+  );
+
   const conflicts = [];
 
-  // Check each manifest entry against disk
   for (const [filePath, expectedHash] of expectedMap) {
-    const absFilePath = join(snapshotAbsPath, filePath);
-    if (!existsSync(absFilePath)) {
-      conflicts.push({ file: filePath, status: 'missing' });
-    } else {
+      const manifestRelativePath = isLegacyV1
+        ? entryPathToLegacyPath(filePath)
+        : filePath;
+      const absFilePath = join(contentBaseDir, manifestRelativePath);
+      if (!existsSync(absFilePath)) {
+        conflicts.push({ file: filePath, status: 'missing' });
+      } else {
       const actualHash = sha256Hex(absFilePath);
       if (actualHash !== expectedHash) {
         conflicts.push({ file: filePath, status: 'modified' });
@@ -141,20 +96,31 @@ export function verifySnapshot({ target }) {
     }
   }
 
-  // Check for unexpected files (on disk but not in manifest)
-  for (const actualFile of actualFiles) {
-    if (!expectedMap.has(actualFile)) {
-      conflicts.push({ file: actualFile, status: 'unexpected' });
+  for (let i = 0; i < actualFiles.length; i += 1) {
+    const actualFile = actualFiles[i];
+    const normalizedActualFile = normalizedActualFiles[i];
+    if (!expectedMap.has(normalizedActualFile)) {
+      conflicts.push({ file: normalizedActualFile, status: 'unexpected' });
     }
   }
 
-  // Sort conflicts by file path for deterministic output
   conflicts.sort((a, b) => a.file.localeCompare(b.file));
 
   return {
     clean: conflicts.length === 0,
     conflicts,
     activeVersion: version || 'unknown',
-    snapshotPath: snapshotRelPath,
+    snapshotPath: isLegacyV1 ? installRecord.activeSnapshotPath || null : null,
   };
+}
+
+function entryPathToLegacyPath(flatPath) {
+  if (flatPath.startsWith('spec_')) return `corpora/${flatPath}`;
+  return `root/${flatPath}`;
+}
+
+function legacyPathToFlatPath(legacyPath) {
+  if (legacyPath.startsWith('root/')) return legacyPath.slice('root/'.length);
+  if (legacyPath.startsWith('corpora/')) return legacyPath.slice('corpora/'.length);
+  return legacyPath;
 }

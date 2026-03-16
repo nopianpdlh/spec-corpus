@@ -1,7 +1,7 @@
 /**
- * verify-clean.test.mjs — e2e tests for clean snapshot verification
+ * verify-clean.test.mjs — e2e tests for clean managed payload verification
  *
- * Tests the verify command on a freshly bootstrapped snapshot where all
+ * Tests the verify command on a freshly bootstrapped flat layout where all
  * files should match the release manifest (clean state).
  *
  * Also tests the status command's clean/dirty reporting.
@@ -14,6 +14,7 @@ import assert from 'node:assert/strict';
 import { mkdir, rm, readFile, access } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { runBootstrap } from '../../src/commands/bootstrap.mjs';
 import { runVerify } from '../../src/commands/verify.mjs';
 import { runStatus } from '../../src/commands/status.mjs';
@@ -62,7 +63,8 @@ function parseJsonLine(output) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -87,7 +89,7 @@ after(async () => {
 // Verify on clean snapshot
 // ---------------------------------------------------------------------------
 
-describe('verify — clean snapshot', () => {
+describe('verify — clean flat install', () => {
   let target;
   let captured;
 
@@ -104,7 +106,7 @@ describe('verify — clean snapshot', () => {
     captured = await captureOutput(() => runVerify({ target }));
   });
 
-  it('exits with code 0 for clean snapshot', () => {
+  it('exits with code 0 for clean install', () => {
     assert.strictEqual(captured.result.exitCode, 0);
   });
 
@@ -121,7 +123,7 @@ describe('verify — clean snapshot', () => {
 
   it('reports activeVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.activeVersion, '0.1.0');
+    assert.strictEqual(json.activeVersion, corpusVersion);
   });
 
   it('reports empty conflicts array', () => {
@@ -142,10 +144,10 @@ describe('verify — clean snapshot', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Verify creates release-manifest.json in snapshot
+// Verify release-manifest.json lives at flat root
 // ---------------------------------------------------------------------------
 
-describe('verify — release-manifest.json in snapshot', () => {
+describe('verify — release-manifest.json in flat root', () => {
   let target;
 
   before(async () => {
@@ -157,19 +159,24 @@ describe('verify — release-manifest.json in snapshot', () => {
     );
   });
 
-  it('release-manifest.json exists in snapshot directory', async () => {
-    const manifestPath = join(
-      target,
-      '.spec-corpus',
-      'snapshots',
-      '0.1.0',
-      'release-manifest.json'
-    );
+  it('release-manifest.json exists in flat canonical root', async () => {
+    const manifestPath = join(target, '.spec-corpus', 'release-manifest.json');
     await access(manifestPath);
     const raw = await readFile(manifestPath, 'utf-8');
     const manifest = JSON.parse(raw);
     assert.strictEqual(manifest.schemaVersion, 1);
     assert.ok(Array.isArray(manifest.files), 'manifest must have files array');
+  });
+
+  it('does not create snapshots directory for fresh installs', async () => {
+    const snapshotsDir = join(target, '.spec-corpus', 'snapshots');
+    let exists = true;
+    try {
+      await access(snapshotsDir);
+    } catch {
+      exists = false;
+    }
+    assert.strictEqual(exists, false);
   });
 });
 
@@ -208,7 +215,7 @@ describe('status — reports clean for fresh install', () => {
 
   it('reports activeVersion', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.activeVersion, '0.1.0');
+    assert.strictEqual(json.activeVersion, corpusVersion);
   });
 
   it('stderr includes integrity: clean', () => {
