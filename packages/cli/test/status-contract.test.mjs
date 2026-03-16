@@ -11,6 +11,7 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
 // We test runStatus by:
@@ -19,6 +20,10 @@ import { tmpdir } from 'node:os';
 // 3. Asserting on the parsed JSON shape
 
 import { runStatus } from '../src/commands/status.mjs';
+
+const cliVersion = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
+).version;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -115,7 +120,7 @@ describe('status contract — installed', () => {
     corpusPackageVersion: '0.1.0',
     corpusPackageIntegrity: 'sha512-abc123',
     cliPackageName: 'spec-corpus',
-    cliPackageVersion: '0.1.0',
+    cliPackageVersion: cliVersion,
     activeSnapshotVersion: '0.1.0',
     activeSnapshotPath: '.spec-corpus/snapshots/0.1.0',
     installedAt: '2026-03-16T00:00:00.000Z',

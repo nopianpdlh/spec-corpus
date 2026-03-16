@@ -28,6 +28,9 @@ import { tmpdir } from 'node:os';
 import { existsSync, readFileSync } from 'node:fs';
 import { runUpdate } from '../../src/commands/update.mjs';
 
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const cliVersion = JSON.parse(readFileSync(resolve('packages/cli/package.json'), 'utf-8')).version;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -137,7 +140,7 @@ async function createFakeSnapshot(target) {
     corpusPackageVersion: '0.0.1',
     corpusPackageIntegrity: 'sha512-fakeintegrity',
     cliPackageName: 'spec-corpus',
-    cliPackageVersion: '0.1.0',
+    cliPackageVersion: cliVersion,
     activeSnapshotVersion: '0.0.1',
     activeSnapshotPath: '.spec-corpus/snapshots/0.0.1',
     installedAt: '2025-01-01T00:00:00.000Z',
@@ -157,7 +160,6 @@ async function createFakeSnapshot(target) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
 const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
