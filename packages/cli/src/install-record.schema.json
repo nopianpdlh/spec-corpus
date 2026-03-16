@@ -6,13 +6,13 @@
   "type": "object",
   "required": [
     "schemaVersion",
+    "layoutVersion",
     "corpusPackageName",
     "corpusPackageVersion",
     "corpusPackageIntegrity",
     "cliPackageName",
     "cliPackageVersion",
     "activeSnapshotVersion",
-    "activeSnapshotPath",
     "installedAt",
     "installSource"
   ],
@@ -22,6 +22,11 @@
       "type": "integer",
       "const": 1,
       "description": "Schema version for forward-compatibility gating."
+    },
+    "layoutVersion": {
+      "type": "integer",
+      "enum": [1, 2],
+      "description": "Install layout version. v1 uses snapshots; v2 uses flat .spec-corpus root."
     },
     "corpusPackageName": {
       "type": "string",
@@ -53,7 +58,7 @@
     },
     "activeSnapshotPath": {
       "type": "string",
-      "description": "Relative path to the active snapshot directory (e.g. \".spec-corpus/snapshots/0.1.0\")."
+      "description": "[Deprecated in layoutVersion=2] Relative path to the active snapshot directory (e.g. \".spec-corpus/snapshots/0.1.0\")."
     },
     "installedAt": {
       "type": "string",

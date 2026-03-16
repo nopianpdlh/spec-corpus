@@ -14,13 +14,13 @@ describe('install-record.schema.json', () => {
   it('required fields include all expected properties', () => {
     const expected = [
       'schemaVersion',
+      'layoutVersion',
       'corpusPackageName',
       'corpusPackageVersion',
       'corpusPackageIntegrity',
       'cliPackageName',
       'cliPackageVersion',
       'activeSnapshotVersion',
-      'activeSnapshotPath',
       'installedAt',
       'installSource',
     ];
@@ -45,6 +45,18 @@ describe('install-record.schema.json', () => {
       'registry',
       'tarball',
     ]);
+  });
+
+  it('layoutVersion enum is [1, 2]', () => {
+    assert.deepStrictEqual(schema.properties.layoutVersion.enum, [1, 2]);
+  });
+
+  it('activeSnapshotPath remains optional for legacy v1 compatibility', () => {
+    assert.ok(schema.properties.activeSnapshotPath, 'activeSnapshotPath property must exist');
+    assert.ok(
+      !schema.required.includes('activeSnapshotPath'),
+      'activeSnapshotPath must NOT be required in layout v2'
+    );
   });
 
   it('schema does NOT define a files property (thin install record)', () => {
