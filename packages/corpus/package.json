@@ -1,9 +1,9 @@
 {
   "name": "@spec-corpus/corpus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
-  "description": "Spec corpus content package — curated engineering specs for AI-assisted development",
+  "description": "Spec corpus content package \u2014 curated engineering specs for AI-assisted development",
   "files": [
     "README.md",
     "dist/"
