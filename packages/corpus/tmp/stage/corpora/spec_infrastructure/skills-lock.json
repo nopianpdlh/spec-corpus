@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "deployment-automation": {
+      "source": "spec_infrastructure/.agents/skills/deployment-automation/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "environment-setup": {
+      "source": "spec_infrastructure/.agents/skills/environment-setup/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "security-best-practices": {
+      "source": "spec_infrastructure/.agents/skills/security-best-practices/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "system-environment-setup": {
+      "source": "spec_infrastructure/.agents/skills/system-environment-setup/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "frontend-design-system": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "da8fe39e337e255e6cffa99bec61458afbfb843c0b01b66012f628b5aabdb5b6"
+    },
+    "react-grab": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "91cf226afecd5470d775766ecf0b40c110b0051eafbf17a356f73e3029393764"
+    },
+    "responsive-design": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "1c2c94867cc1eeca74977d57b0d9818616934a62a58e100d9350ff11cd7244fd"
+    },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "computedHash": "941f6f4db0f79248f6480256cf1838ed19bc1a0d70f499bb756f491142625cb4"
+    },
+    "state-management": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "19bd2a636363f3d20386b753d724ee33433ef770ca36f714163568be9b6d25de"
+    },
+    "tailwind-design-system": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "0fc7b79d08ee5168d46c6887014cbe5bd02f2c5e458858470e20fc8ecedefb46"
+    },
+    "ui-component-patterns": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "85389a825fdc9e4f6ec84e6776e263e00f12f3cc9205006a2932b0a97e3f4522"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "computedHash": "6337038fe1fe6bbe1b9f252ab678ee575859190bab6f0f246f4061824eb40875"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "ff602214356ac15c65aa8702aff5a2aedaf958d66d301e3279f1dfeaf18c94e9"
+    },
+    "web-accessibility": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "18f3c393f2fe364ecd7b0fbf646eafabef4dcb287af948e1414d16c84b4d7628"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "d8e7d3afe37dcc8a97b99ffb5afdb4d0919ae0092ea8b68f44eb201f035e33ac"
+    }
+  }
+}

@@ -13,9 +13,8 @@
  *   stderr: human-readable planned actions
  */
 
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
 import { installFromTarball } from '../install.mjs';
+import { resolveCorpusTarball } from '../resolve-corpus-tarball.mjs';
 
 /**
  * @typedef {Object} BootstrapOptions
@@ -31,24 +30,28 @@ import { installFromTarball } from '../install.mjs';
  * @returns {Promise<{ exitCode: number }>}
  */
 export async function runBootstrap(options) {
+  return runBootstrapLike('bootstrap', options);
+}
+
+export async function runBootstrapLike(commandName, options) {
   const { target, version, from, dryRun } = options;
 
   // --- Dry-run mode: plan only, no mutations ---
   if (dryRun) {
     const plannedActions = buildPlannedActions({ target, version, from });
 
-    const result = {
-      event: 'dry-run',
-      command: 'bootstrap',
-      target,
-      version: version ?? 'latest',
-      installSource: from ? 'tarball' : 'registry',
+      const result = {
+        event: 'dry-run',
+        command: commandName,
+        target,
+        version: version ?? 'latest',
+        installSource: from ? 'tarball' : 'registry',
       plannedActions,
     };
 
     process.stdout.write(JSON.stringify(result) + '\n');
 
-    process.stderr.write('[dry-run] bootstrap — no files will be written\n');
+    process.stderr.write(`[dry-run] ${commandName} — no files will be written\n`);
     process.stderr.write(`  target:  ${target}\n`);
     process.stderr.write(`  version: ${version ?? 'latest'}\n`);
     process.stderr.write(`  source:  ${from ? `tarball (${from})` : 'npm registry'}\n`);
@@ -62,83 +65,61 @@ export async function runBootstrap(options) {
 
   // --- Live install ---
   try {
-    // Resolve the tarball path
-    const tarballPath = resolveTarball({ from, version });
+    const resolvedTarball = resolveCorpusTarball({ from, version });
 
-    const installResult = installFromTarball({
-      tarballPath,
-      target,
-      installSource: from ? 'tarball' : 'registry',
-    });
+    try {
+      const installResult = installFromTarball({
+        tarballPath: resolvedTarball.tarballPath,
+        target,
+        installSource: resolvedTarball.installSource,
+      });
 
-    if (installResult.alreadyInstalled) {
+      if (installResult.alreadyInstalled) {
+        const result = {
+          event: 'already-installed',
+          command: commandName,
+          target,
+          version: installResult.version,
+          snapshotPath: installResult.snapshotPath,
+          installJsonPath: installResult.installJsonPath,
+        };
+        process.stdout.write(JSON.stringify(result) + '\n');
+        process.stderr.write(`[${commandName}] already installed — version ${installResult.version}\n`);
+        process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+        return { exitCode: 0 };
+      }
+
       const result = {
-        event: 'already-installed',
-        command: 'bootstrap',
+        event: 'complete',
+        command: commandName,
         target,
         version: installResult.version,
         snapshotPath: installResult.snapshotPath,
         installJsonPath: installResult.installJsonPath,
+        installRecord: installResult.installRecord,
       };
       process.stdout.write(JSON.stringify(result) + '\n');
-      process.stderr.write(`[bootstrap] already installed — version ${installResult.version}\n`);
+
+      process.stderr.write(`[${commandName}] installed corpus v${installResult.version}\n`);
+      process.stderr.write(`  target:   ${target}\n`);
       process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
+      process.stderr.write(`  record:   ${installResult.installJsonPath}\n`);
+
       return { exitCode: 0 };
+    } finally {
+      resolvedTarball.cleanup();
     }
-
-    // Fresh install
-    const result = {
-      event: 'complete',
-      command: 'bootstrap',
-      target,
-      version: installResult.version,
-      snapshotPath: installResult.snapshotPath,
-      installJsonPath: installResult.installJsonPath,
-      installRecord: installResult.installRecord,
-    };
-    process.stdout.write(JSON.stringify(result) + '\n');
-
-    process.stderr.write(`[bootstrap] installed corpus v${installResult.version}\n`);
-    process.stderr.write(`  target:   ${target}\n`);
-    process.stderr.write(`  snapshot: ${installResult.snapshotPath}\n`);
-    process.stderr.write(`  record:   ${installResult.installJsonPath}\n`);
-
-    return { exitCode: 0 };
   } catch (err) {
     const result = {
       event: 'error',
-      command: 'bootstrap',
+      command: commandName,
       target,
       error: err.message,
     };
     process.stdout.write(JSON.stringify(result) + '\n');
-    process.stderr.write(`[bootstrap] ERROR: ${err.message}\n`);
+    process.stderr.write(`[${commandName}] ERROR: ${err.message}\n`);
     return { exitCode: 1 };
   }
-}
-
-/**
- * Resolve the tarball path from options.
- * If --from is provided, use that local file.
- * Otherwise, registry resolution is not yet implemented (v1 requires --from).
- *
- * @param {{ from: string|null, version: string|null }} opts
- * @returns {string} absolute path to tarball
- */
-function resolveTarball({ from, version }) {
-  if (from) {
-    const absPath = resolve(from);
-    if (!existsSync(absPath)) {
-      throw new Error(`Tarball not found: ${absPath}`);
-    }
-    return absPath;
-  }
-
-  // Registry resolution: not implemented in v1
-  // Future: npm pack @spec-corpus/corpus@<version> to a temp dir
-  throw new Error(
-    'Registry install is not yet supported. Use --from <path.tgz> to provide a local tarball.'
-  );
 }
 
 /**

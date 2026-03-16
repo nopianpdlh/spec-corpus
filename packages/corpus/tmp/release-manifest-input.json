@@ -1,0 +1,328 @@
+{
+  "root": [
+    {
+      "path": "root/README.md",
+      "hash": "9e9564212af4c34c80c4cf46c0d978d69cc79b7d3da9c6fe969d8c71873b09d8",
+      "size": 2621
+    },
+    {
+      "path": "root/OPERATING-MODEL.md",
+      "hash": "7a03d5cee8796fad86aefdbcbf262b362a0563ddda600a945a600c82dec50593",
+      "size": 4030
+    },
+    {
+      "path": "root/ARCHITECTURE.md",
+      "hash": "0cd1317c70161e696f1d2a40c9eebb19e29f6ae6652a324198b1566c6c229a31",
+      "size": 2778
+    },
+    {
+      "path": "root/CENTRAL-CHECKLIST.md",
+      "hash": "ef0bb43fbf28380827f09689148d7af6eb34b7bf3ea3809c5df85dac693e29bb",
+      "size": 2550
+    },
+    {
+      "path": "root/CONTRIBUTING.md",
+      "hash": "8b61301ffa2c7964a912652554c773e35f8f5d8675d2210345bc21663da69289",
+      "size": 2582
+    }
+  ],
+  "corpora": {
+    "spec_frontend": [
+      {
+        "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-design.md",
+        "hash": "1b5efa7e6fb452b9daaecdd3f045f2c0ba5a5f4f96784db1e2fbd93fa8892957",
+        "size": 5430
+      },
+      {
+        "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-plan.md",
+        "hash": "b8774077accbee58f12915abd87ca5da3710d7fe0a898f17bc6097866f35a8cd",
+        "size": 6436
+      },
+      {
+        "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-design.md",
+        "hash": "e881e3933bf36542000c573dbef65b7cc4f4d1acd51d3025e317b873d45ceb90",
+        "size": 5369
+      },
+      {
+        "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-plan.md",
+        "hash": "6a7b0d327f8de540b0e825dc3752a01c6e4f905b30a5e56b051910c270cbf33b",
+        "size": 5266
+      },
+      {
+        "path": "corpora/spec_frontend/DOMAIN-OWNERSHIP.md",
+        "hash": "44877fdcf5b146b0e792355457e757c407424e5afaedae2107d4f38b9473778d",
+        "size": 6206
+      },
+      {
+        "path": "corpora/spec_frontend/FRONTEND-SPEC-INDEX.md",
+        "hash": "6f1eb6bc52441d77d2749c81fb544003a0b6017eb56e07e8eebc0be246258a49",
+        "size": 5021
+      },
+      {
+        "path": "corpora/spec_frontend/NEW-PROJECT-CHECKLIST.md",
+        "hash": "cf346048310c31671e409469a4c04971e73a7f06f1c9a0218dc828601b8ec427",
+        "size": 4628
+      },
+      {
+        "path": "corpora/spec_frontend/skills-lock.json",
+        "hash": "35f818bab877a618ea9d544e90ccc65ed944a73d704eae0b109488162ff5f390",
+        "size": 2432
+      }
+    ],
+    "spec_backend": [
+      {
+        "path": "corpora/spec_backend/BACKEND-SPEC-INDEX.md",
+        "hash": "09ad030b0ee5eb064370097fd878ebd3dad51b572db7a0ff2e134c73494e4e12",
+        "size": 3939
+      },
+      {
+        "path": "corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-design.md",
+        "hash": "9aa42276b4bb642402a67f4ab4559acc05c4ce0280685c7f72dd4e103655dcc1",
+        "size": 5180
+      },
+      {
+        "path": "corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-plan.md",
+        "hash": "bee51e6f558c4156109a3842f8e52349a1dd9d1e369cde3da353253e17fcb631",
+        "size": 6008
+      },
+      {
+        "path": "corpora/spec_backend/DOMAIN-OWNERSHIP.md",
+        "hash": "1c3bde0286befeb80230b27e42015db464cde2711c0c0020a634b2140df93425",
+        "size": 5113
+      },
+      {
+        "path": "corpora/spec_backend/NEW-PROJECT-CHECKLIST.md",
+        "hash": "d13378107863e784875d5cd59e70b5eb2b0928a6065e4daec03738469242e269",
+        "size": 4108
+      },
+      {
+        "path": "corpora/spec_backend/skills-lock.json",
+        "hash": "48f4ef46ccbfe5a5e46a5023f45363e1f960bea4f270d10f3e59a1c6b785fa45",
+        "size": 910
+      }
+    ],
+    "spec_code-quality": [
+      {
+        "path": "corpora/spec_code-quality/CODE-QUALITY-SPEC-INDEX.md",
+        "hash": "7705462cee5283a41bce3cc150505a85228b929164934e4fdb36f93c51b17146",
+        "size": 3339
+      },
+      {
+        "path": "corpora/spec_code-quality/DOMAIN-OWNERSHIP.md",
+        "hash": "6a2fa1b459f2af998432e196bf9953042285f6872dcf63029d50c2a04adb553c",
+        "size": 4600
+      },
+      {
+        "path": "corpora/spec_code-quality/NEW-PROJECT-CHECKLIST.md",
+        "hash": "1667938eba131650350d8f7fe7be27c1490762986d183f903c47a0b23c042748",
+        "size": 2666
+      },
+      {
+        "path": "corpora/spec_code-quality/skills-lock.json",
+        "hash": "ecf5918e9f1c84f2a4d7c101fd5cf8ba3f487c398fe9f6178b55030d1cfb1931",
+        "size": 951
+      }
+    ],
+    "spec_documentation": [
+      {
+        "path": "corpora/spec_documentation/DOCS-SPEC-INDEX.md",
+        "hash": "021dc5e711f93ce166fabf04f901bcb492a610322031b6e40f5df4456388828e",
+        "size": 2632
+      },
+      {
+        "path": "corpora/spec_documentation/DOMAIN-OWNERSHIP.md",
+        "hash": "59ea3a386ec9481019c6a114194c4ae7a2ed75d3590b2843f040be5d649c98d0",
+        "size": 3588
+      },
+      {
+        "path": "corpora/spec_documentation/NEW-PROJECT-CHECKLIST.md",
+        "hash": "ce4cf7865b7475c8b34fca2fc5e5a4c3f4df15052acebd3e406d1a13d1ac321a",
+        "size": 2259
+      },
+      {
+        "path": "corpora/spec_documentation/skills-lock.json",
+        "hash": "3e8b09a9242d80a3962f140af79abc413756a68abf31283105fd13a5e9d6fbbb",
+        "size": 802
+      }
+    ],
+    "spec_infrastructure": [
+      {
+        "path": "corpora/spec_infrastructure/DOMAIN-OWNERSHIP.md",
+        "hash": "53c3226f6c4c710277b7f4388a7f7b1f88367d7b3e36735bb9da053605d027c5",
+        "size": 4017
+      },
+      {
+        "path": "corpora/spec_infrastructure/INFRA-SPEC-INDEX.md",
+        "hash": "3bd25ae4c14649fd983c693547eec729640e6edcf821aa1e2e840f1ec5a2d51a",
+        "size": 2668
+      },
+      {
+        "path": "corpora/spec_infrastructure/NEW-PROJECT-CHECKLIST.md",
+        "hash": "af621dbe011ac97f1d4b0a2e518a4955b4f5b703bef03d21fbeec2f15369d3ba",
+        "size": 2582
+      },
+      {
+        "path": "corpora/spec_infrastructure/skills-lock.json",
+        "hash": "10b3bcda29959abeee73811868835290f704223aca746672462a951a4f4be5d6",
+        "size": 799
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "root/README.md",
+      "hash": "9e9564212af4c34c80c4cf46c0d978d69cc79b7d3da9c6fe969d8c71873b09d8",
+      "size": 2621
+    },
+    {
+      "path": "root/OPERATING-MODEL.md",
+      "hash": "7a03d5cee8796fad86aefdbcbf262b362a0563ddda600a945a600c82dec50593",
+      "size": 4030
+    },
+    {
+      "path": "root/ARCHITECTURE.md",
+      "hash": "0cd1317c70161e696f1d2a40c9eebb19e29f6ae6652a324198b1566c6c229a31",
+      "size": 2778
+    },
+    {
+      "path": "root/CENTRAL-CHECKLIST.md",
+      "hash": "ef0bb43fbf28380827f09689148d7af6eb34b7bf3ea3809c5df85dac693e29bb",
+      "size": 2550
+    },
+    {
+      "path": "root/CONTRIBUTING.md",
+      "hash": "8b61301ffa2c7964a912652554c773e35f8f5d8675d2210345bc21663da69289",
+      "size": 2582
+    },
+    {
+      "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-design.md",
+      "hash": "1b5efa7e6fb452b9daaecdd3f045f2c0ba5a5f4f96784db1e2fbd93fa8892957",
+      "size": 5430
+    },
+    {
+      "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-1-normalization-plan.md",
+      "hash": "b8774077accbee58f12915abd87ca5da3710d7fe0a898f17bc6097866f35a8cd",
+      "size": 6436
+    },
+    {
+      "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-design.md",
+      "hash": "e881e3933bf36542000c573dbef65b7cc4f4d1acd51d3025e317b873d45ceb90",
+      "size": 5369
+    },
+    {
+      "path": "corpora/spec_frontend/docs/plans/2026-03-14-spec-frontend-phase-2-3-plan.md",
+      "hash": "6a7b0d327f8de540b0e825dc3752a01c6e4f905b30a5e56b051910c270cbf33b",
+      "size": 5266
+    },
+    {
+      "path": "corpora/spec_frontend/DOMAIN-OWNERSHIP.md",
+      "hash": "44877fdcf5b146b0e792355457e757c407424e5afaedae2107d4f38b9473778d",
+      "size": 6206
+    },
+    {
+      "path": "corpora/spec_frontend/FRONTEND-SPEC-INDEX.md",
+      "hash": "6f1eb6bc52441d77d2749c81fb544003a0b6017eb56e07e8eebc0be246258a49",
+      "size": 5021
+    },
+    {
+      "path": "corpora/spec_frontend/NEW-PROJECT-CHECKLIST.md",
+      "hash": "cf346048310c31671e409469a4c04971e73a7f06f1c9a0218dc828601b8ec427",
+      "size": 4628
+    },
+    {
+      "path": "corpora/spec_frontend/skills-lock.json",
+      "hash": "35f818bab877a618ea9d544e90ccc65ed944a73d704eae0b109488162ff5f390",
+      "size": 2432
+    },
+    {
+      "path": "corpora/spec_backend/BACKEND-SPEC-INDEX.md",
+      "hash": "09ad030b0ee5eb064370097fd878ebd3dad51b572db7a0ff2e134c73494e4e12",
+      "size": 3939
+    },
+    {
+      "path": "corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-design.md",
+      "hash": "9aa42276b4bb642402a67f4ab4559acc05c4ce0280685c7f72dd4e103655dcc1",
+      "size": 5180
+    },
+    {
+      "path": "corpora/spec_backend/docs/plans/2026-03-14-spec-backend-design-api-plan.md",
+      "hash": "bee51e6f558c4156109a3842f8e52349a1dd9d1e369cde3da353253e17fcb631",
+      "size": 6008
+    },
+    {
+      "path": "corpora/spec_backend/DOMAIN-OWNERSHIP.md",
+      "hash": "1c3bde0286befeb80230b27e42015db464cde2711c0c0020a634b2140df93425",
+      "size": 5113
+    },
+    {
+      "path": "corpora/spec_backend/NEW-PROJECT-CHECKLIST.md",
+      "hash": "d13378107863e784875d5cd59e70b5eb2b0928a6065e4daec03738469242e269",
+      "size": 4108
+    },
+    {
+      "path": "corpora/spec_backend/skills-lock.json",
+      "hash": "48f4ef46ccbfe5a5e46a5023f45363e1f960bea4f270d10f3e59a1c6b785fa45",
+      "size": 910
+    },
+    {
+      "path": "corpora/spec_code-quality/CODE-QUALITY-SPEC-INDEX.md",
+      "hash": "7705462cee5283a41bce3cc150505a85228b929164934e4fdb36f93c51b17146",
+      "size": 3339
+    },
+    {
+      "path": "corpora/spec_code-quality/DOMAIN-OWNERSHIP.md",
+      "hash": "6a2fa1b459f2af998432e196bf9953042285f6872dcf63029d50c2a04adb553c",
+      "size": 4600
+    },
+    {
+      "path": "corpora/spec_code-quality/NEW-PROJECT-CHECKLIST.md",
+      "hash": "1667938eba131650350d8f7fe7be27c1490762986d183f903c47a0b23c042748",
+      "size": 2666
+    },
+    {
+      "path": "corpora/spec_code-quality/skills-lock.json",
+      "hash": "ecf5918e9f1c84f2a4d7c101fd5cf8ba3f487c398fe9f6178b55030d1cfb1931",
+      "size": 951
+    },
+    {
+      "path": "corpora/spec_documentation/DOCS-SPEC-INDEX.md",
+      "hash": "021dc5e711f93ce166fabf04f901bcb492a610322031b6e40f5df4456388828e",
+      "size": 2632
+    },
+    {
+      "path": "corpora/spec_documentation/DOMAIN-OWNERSHIP.md",
+      "hash": "59ea3a386ec9481019c6a114194c4ae7a2ed75d3590b2843f040be5d649c98d0",
+      "size": 3588
+    },
+    {
+      "path": "corpora/spec_documentation/NEW-PROJECT-CHECKLIST.md",
+      "hash": "ce4cf7865b7475c8b34fca2fc5e5a4c3f4df15052acebd3e406d1a13d1ac321a",
+      "size": 2259
+    },
+    {
+      "path": "corpora/spec_documentation/skills-lock.json",
+      "hash": "3e8b09a9242d80a3962f140af79abc413756a68abf31283105fd13a5e9d6fbbb",
+      "size": 802
+    },
+    {
+      "path": "corpora/spec_infrastructure/DOMAIN-OWNERSHIP.md",
+      "hash": "53c3226f6c4c710277b7f4388a7f7b1f88367d7b3e36735bb9da053605d027c5",
+      "size": 4017
+    },
+    {
+      "path": "corpora/spec_infrastructure/INFRA-SPEC-INDEX.md",
+      "hash": "3bd25ae4c14649fd983c693547eec729640e6edcf821aa1e2e840f1ec5a2d51a",
+      "size": 2668
+    },
+    {
+      "path": "corpora/spec_infrastructure/NEW-PROJECT-CHECKLIST.md",
+      "hash": "af621dbe011ac97f1d4b0a2e518a4955b4f5b703bef03d21fbeec2f15369d3ba",
+      "size": 2582
+    },
+    {
+      "path": "corpora/spec_infrastructure/skills-lock.json",
+      "hash": "10b3bcda29959abeee73811868835290f704223aca746672462a951a4f4be5d6",
+      "size": 799
+    }
+  ]
+}

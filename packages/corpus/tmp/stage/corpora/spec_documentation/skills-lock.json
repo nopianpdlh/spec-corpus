@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "changelog-maintenance": {
+      "source": "spec_documentation/.agents/skills/changelog-maintenance/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "presentation-builder": {
+      "source": "supercent-io/skills-template",
+      "sourceType": "github",
+      "computedHash": "073079e6509d62d380efb831cdb05c7db09bac116ab686a88bb6cb0cbef959f0"
+    },
+    "technical-writing": {
+      "source": "spec_documentation/.agents/skills/technical-writing/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "local-managed"
+    },
+    "using-git-worktrees": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "52bbb4b6e80918e83e92a1514f3b3757712154c2a8a42de24919e48a794c54fc"
+    }
+  }
+}

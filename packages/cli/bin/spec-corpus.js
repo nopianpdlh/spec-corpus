@@ -7,6 +7,7 @@
  */
 
 import { parseArgs, buildUsage, COMMANDS } from '../src/cli-args.mjs';
+import { runInit } from '../src/commands/init.mjs';
 import { runBootstrap } from '../src/commands/bootstrap.mjs';
 import { runUpdate } from '../src/commands/update.mjs';
 import { runStatus } from '../src/commands/status.mjs';
@@ -42,6 +43,15 @@ const { command, flags } = parsed;
 let result;
 
 switch (command) {
+  case 'init':
+    result = await runInit({
+      target: flags.target,
+      version: flags.version,
+      from: flags.from,
+      dryRun: flags.dryRun,
+    });
+    break;
+
   case 'bootstrap':
     result = await runBootstrap({
       target: flags.target,

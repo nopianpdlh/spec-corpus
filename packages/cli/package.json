@@ -11,9 +11,6 @@
     "bin/",
     "src/"
   ],
-  "exports": {
-    ".": "./src/index.js"
-  },
   "engines": {
     "node": ">=20"
   },

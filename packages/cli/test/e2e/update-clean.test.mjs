@@ -25,7 +25,7 @@ import {
 } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { runUpdate } from '../../src/commands/update.mjs';
 
 // ---------------------------------------------------------------------------
@@ -66,6 +66,20 @@ function parseJsonLine(output) {
   const line = output.split('\n').find((l) => l.trim().startsWith('{'));
   assert.ok(line, 'Expected at least one JSON line in stdout');
   return JSON.parse(line);
+}
+
+async function withRegistryFixture(fn) {
+  const prev = process.env.SPEC_CORPUS_REGISTRY_TARBALL;
+  process.env.SPEC_CORPUS_REGISTRY_TARBALL = TARBALL_PATH;
+  try {
+    return await fn();
+  } finally {
+    if (prev === undefined) {
+      delete process.env.SPEC_CORPUS_REGISTRY_TARBALL;
+    } else {
+      process.env.SPEC_CORPUS_REGISTRY_TARBALL = prev;
+    }
+  }
 }
 
 /**
@@ -143,7 +157,8 @@ async function createFakeSnapshot(target) {
 // Test setup
 // ---------------------------------------------------------------------------
 
-const TARBALL_PATH = resolve('tmp/dist/spec-corpus-corpus-0.1.0.tgz');
+const corpusVersion = JSON.parse(readFileSync(resolve('packages/corpus/package.json'), 'utf-8')).version;
+const TARBALL_PATH = resolve(`tmp/dist/spec-corpus-corpus-${corpusVersion}.tgz`);
 let tmpBase;
 
 before(async () => {
@@ -342,10 +357,10 @@ describe('update — already active (same version)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Error: no --from (registry not supported)
+// Registry-first update (no --from)
 // ---------------------------------------------------------------------------
 
-describe('update — error: no --from (registry not supported)', () => {
+describe('update — registry-first update without --from', () => {
   let target;
   let captured;
 
@@ -354,30 +369,38 @@ describe('update — error: no --from (registry not supported)', () => {
     await mkdir(target, { recursive: true });
     await createFakeSnapshot(target);
 
-    captured = await captureOutput(() =>
-      runUpdate({
-        target,
-        version: null,
-        from: null,
-        force: false,
-        dryRun: false,
-      })
+    captured = await withRegistryFixture(() =>
+      captureOutput(() =>
+        runUpdate({
+          target,
+          version: null,
+          from: null,
+          force: false,
+          dryRun: false,
+        })
+      )
     );
   });
 
-  it('exits with code 1', () => {
-    assert.strictEqual(captured.result.exitCode, 1);
+  it('exits with code 0', () => {
+    assert.strictEqual(captured.result.exitCode, 0);
   });
 
-  it('emits event="error" JSON to stdout', () => {
+  it('emits event="complete" JSON to stdout', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.strictEqual(json.event, 'error');
+    assert.strictEqual(json.event, 'complete');
     assert.strictEqual(json.command, 'update');
   });
 
-  it('error message mentions registry not supported', () => {
+  it('records the resolved registry version', () => {
     const json = parseJsonLine(captured.stdout);
-    assert.ok(json.error.includes('not yet supported'));
+    assert.strictEqual(json.version, corpusVersion);
+  });
+
+  it('writes installSource="registry" after update', async () => {
+    const installJsonPath = join(target, '.spec-corpus', 'install.json');
+    const record = JSON.parse(await readFile(installJsonPath, 'utf-8'));
+    assert.strictEqual(record.installSource, 'registry');
   });
 });
 
