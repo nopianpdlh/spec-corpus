@@ -1,6 +1,6 @@
 {
   "name": "@spec-corpus/corpus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "description": "Spec corpus content package — curated engineering specs for AI-assisted development",
